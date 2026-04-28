@@ -2,9 +2,9 @@ import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from "recharts";
 
 // ─── FONTS ────────────────────────────────────────────────────────────────────
-const FONT_URL = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap";
-const FONT_BODY = "'DM Sans', sans-serif";
-const FONT_MONO = "'DM Mono', monospace";
+const FONT_URL = "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap";
+const FONT_BODY = "'Outfit', sans-serif";
+const FONT_MONO = "'JetBrains Mono', monospace";
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
 const PAIRS = ["EURUSD","GBPUSD","USDJPY","USDCHF","AUDUSD","NZDUSD","USDCAD","EURGBP","EURJPY","GBPJPY","XAUUSD","GBPCHF","EURCAD","AUDCAD","Other"];
@@ -34,26 +34,31 @@ const TEMPLATES = [
 ];
 
 // ─── THEME ────────────────────────────────────────────────────────────────────
-const G = "#22c55e";       // green — wins
-const R = "#ef4444";       // red — losses
-const A = "#eab308";       // yellow — BE / neutral
-const BG = "#09090b";      // near-black zinc background
-const CARD = "#18181b";    // zinc-900 card
-const CARD2 = "#27272a";   // zinc-800 inner card
-const BORDER = "#3f3f46";  // zinc-700 border
-const TEXT = "#fafafa";    // zinc-50 white text
-const TEXT2 = "#a1a1aa";   // zinc-400 secondary text
-const M2 = "#71717a";      // zinc-500 muted
-const MUTED = "#52525b";   // zinc-600
-const ACCENT = "#818cf8";  // indigo-400
-const ACCENT2 = "#6366f1"; // indigo-500
+const G = "#22c55e";        // green — wins
+const R = "#ef4444";        // red — losses
+const A = "#d97706";        // amber
+const GOLD = "#d4a017";     // primary gold accent (like screenshot)
+const GOLD_L = "#f0b429";   // lighter gold
+const GOLD_BG = "#d4a01712"; // gold tint background
+const BG = "#0a0a0a";       // near-black background
+const CARD = "#111111";     // card background
+const CARD2 = "#1a1a1a";    // inner card / secondary
+const CARD3 = "#222222";    // table row hover
+const BORDER = "#2a2a2a";   // subtle border
+const BORDER2 = "#333333";  // slightly more visible border
+const TEXT = "#ffffff";     // pure white
+const TEXT2 = "#a3a3a3";    // secondary text
+const M2 = "#737373";       // muted text
+const MUTED = "#525252";    // more muted
+const ACCENT = GOLD;        // primary accent is gold
+const ACCENT2 = GOLD_L;
 const BC = { Bullish: G, Bearish: R, Neutral: A };
-const SHADOW = "0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3)";
+const SHADOW = "0 1px 3px rgba(0,0,0,0.6)";
 const SUPABASE_URL = "https://yppvcrlwxgxswruaadkf.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlwcHZjcmx3eGd4c3dydWFhZGtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMzY3MjQsImV4cCI6MjA5MjgxMjcyNH0.T4Bx0iqW9Ae_hMFXrScjXtBZS8tczc8-1Lpv-SjaBRI";
 
 // ── PASSWORD — change this to whatever you want ───────────────────────────────
-const APP_PASSWORD = "Tradingjournal@2026";
+const APP_PASSWORD = "eloy2025";
 
 // ── DB helpers ────────────────────────────────────────────────────────────────
 function getUserId() {
@@ -85,7 +90,7 @@ function LoginScreen({ onLogin }) {
     <div style={{ position: "fixed", inset: 0, background: BG, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 40 }}>
       <style>{`@import url('${FONT_URL}'); *{box-sizing:border-box;margin:0;padding:0} body{font-family:${FONT_BODY};-webkit-font-smoothing:antialiased;background:${BG}}`}</style>
       <div style={{ textAlign: "center" }}>
-        <div style={{ fontSize: 44, fontWeight: 700, background: "linear-gradient(135deg, #818cf8, #34d399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "-0.04em", marginBottom: 12, fontFamily: FONT_BODY }}>TradeLog</div>
+        <div style={{ fontSize: 44, fontWeight: 700, background: "linear-gradient(135deg, #d4a017, #f0b429)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "-0.04em", marginBottom: 12, fontFamily: FONT_BODY }}>TradeLog</div>
         <div style={{ fontSize: 15, color: M2, fontWeight: 400 }}>Your ICT Trading Journal</div>
       </div>
       <div style={{ background: CARD, border: "1px solid " + BORDER, borderRadius: 20, padding: "36px 40px", width: "100%", maxWidth: 400, display: "flex", flexDirection: "column", gap: 20, boxShadow: "0 24px 64px rgba(0,0,0,0.6)" }}>
@@ -106,7 +111,7 @@ function LoginScreen({ onLogin }) {
           <button onClick={() => setShow(s => !s)} style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: M2, cursor: "pointer", fontSize: 18, padding: 0 }}>{show ? "🙈" : "👁"}</button>
         </div>
         {error && <div style={{ fontSize: 13, color: "#f87171", fontWeight: 500, marginTop: -10 }}>Incorrect password. Try again.</div>}
-        <button onClick={submit} style={{ padding: "14px", borderRadius: 10, border: "none", background: "linear-gradient(135deg, " + ACCENT2 + ", #7c3aed)", color: "#fff", fontSize: 15, fontWeight: 600, cursor: "pointer", boxShadow: "0 8px 24px " + ACCENT2 + "50", letterSpacing: "0.02em" }}>
+        <button onClick={submit} style={{ padding: "14px", borderRadius: 10, border: "none", background: "linear-gradient(135deg, #d4a017, #f0b429)", color: "#fff", fontSize: 15, fontWeight: 600, cursor: "pointer", boxShadow: "0 8px 24px #d4a01740", letterSpacing: "0.02em" }}>
           Enter Journal →
         </button>
       </div>
@@ -203,7 +208,7 @@ function TradeCharts({ trade, onUpdateScreenshots }) {
           const hasImg = !!(screenshots[tf]);
           return (
             <button key={tf} onClick={() => setActiveTf(tf)}
-              style={{ flex: 1, padding: "9px 0", border: "none", borderBottom: "2px solid " + (activeTf === tf ? ACCENT : "transparent"), background: "transparent", color: activeTf === tf ? "#a5b4fc" : hasImg ? TEXT : M2, cursor: "pointer", fontFamily: FONT_BODY, fontSize: 17, fontWeight: activeTf === tf ? 600 : 400, position: "relative" }}>
+              style={{ flex: 1, padding: "9px 0", border: "none", borderBottom: "2px solid " + (activeTf === tf ? ACCENT : "transparent"), background: "transparent", color: activeTf === tf ? GOLD : hasImg ? TEXT : M2, cursor: "pointer", fontFamily: FONT_BODY, fontSize: 17, fontWeight: activeTf === tf ? 600 : 400, position: "relative" }}>
               {tf}
               {hasImg && <span style={{ display: "inline-block", width: 5, height: 5, borderRadius: "50%", background: G, marginLeft: 5, verticalAlign: "middle", marginTop: -2 }} />}
             </button>
@@ -359,14 +364,14 @@ function TemplatePicker({ value, onChange, direction }) {
 // ─── SMALL COMPONENTS ────────────────────────────────────────────────────────
 function Pill({ result }) {
   const colors = {
-    Win:  { bg: "#16a34a15", border: "#22c55e40", text: "#4ade80" },
-    Loss: { bg: "#dc262615", border: "#ef444440", text: "#f87171" },
-    BE:   { bg: "#ca8a0415", border: "#eab30840", text: "#facc15" },
-    Open: { bg: "#3f3f4620", border: "#52525b40", text: "#a1a1aa" }
+    Win:  { bg: "#16a34a20", border: "#22c55e50", text: "#4ade80" },
+    Loss: { bg: "#dc262620", border: "#ef444450", text: "#f87171" },
+    BE:   { bg: "#d9770620", border: "#f59e0b50", text: "#fbbf24" },
+    Open: { bg: "#33333340", border: "#52525b50", text: "#a3a3a3" }
   };
   const c = colors[result] || colors.Open;
   return (
-    <span style={{ background: c.bg, color: c.text, border: "1px solid " + c.border, padding: "3px 10px", borderRadius: 6, fontSize: 12, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase" }}>
+    <span style={{ background: c.bg, color: c.text, border: "1px solid " + c.border, padding: "3px 10px", borderRadius: 6, fontSize: 12, fontWeight: 600, letterSpacing: "0.04em" }}>
       {result}
     </span>
   );
@@ -374,45 +379,50 @@ function Pill({ result }) {
 
 function Rr({ v }) {
   const n = parseFloat(v);
-  const c = isNaN(n) ? M2 : n > 0 ? "#4ade80" : n < 0 ? "#f87171" : "#facc15";
+  const c = isNaN(n) ? M2 : n > 0 ? "#4ade80" : n < 0 ? "#f87171" : "#fbbf24";
   return <span style={{ color: c, fontFamily: FONT_MONO, fontWeight: 600, fontSize: 14 }}>{isNaN(n) ? "—" : (n > 0 ? "+" : "") + n.toFixed(2) + "R"}</span>;
 }
 
-function StatBox({ label, value, color, sub }) {
+function PnlText({ v, prefix = "" }) {
+  const n = parseFloat(v);
+  const pos = n >= 0;
+  return <span style={{ color: pos ? "#4ade80" : "#f87171", fontFamily: FONT_MONO, fontWeight: 700 }}>{pos ? "+" : ""}{prefix}{isNaN(n) ? "—" : n.toFixed(2)}</span>;
+}
+
+function StatBox({ label, value, color, sub, badge, icon }) {
   return (
-    <div style={{ background: CARD, border: "1px solid " + BORDER, borderRadius: 14, padding: "20px 22px", flex: "1 1 130px", boxShadow: "0 4px 24px rgba(0,0,0,0.3)", display: "flex", flexDirection: "column", gap: 8 }}>
-      <div style={{ fontSize: 11, fontWeight: 600, color: M2, textTransform: "uppercase", letterSpacing: "0.1em" }}>{label}</div>
-      <div style={{ fontSize: 30, fontWeight: 700, color: color || TEXT, fontFamily: FONT_MONO, lineHeight: 1, letterSpacing: "-0.03em" }}>{value}</div>
-      {sub && <div style={{ fontSize: 12, color: M2, fontFamily: FONT_MONO, marginTop: 2 }}>{sub}</div>}
+    <div style={{ background: CARD, border: "1px solid " + BORDER2, borderRadius: 12, padding: "20px 24px", flex: "1 1 180px", display: "flex", flexDirection: "column", gap: 10 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div style={{ fontSize: 13, fontWeight: 500, color: M2 }}>{label}</div>
+        {badge && <span style={{ fontSize: 11, fontWeight: 600, color: GOLD, background: GOLD_BG, border: "1px solid " + GOLD + "40", padding: "2px 8px", borderRadius: 20 }}>{badge}</span>}
+      </div>
+      <div style={{ fontSize: 32, fontWeight: 700, color: color || TEXT, fontFamily: FONT_MONO, letterSpacing: "-0.03em", lineHeight: 1 }}>{value}</div>
+      {sub && <div style={{ fontSize: 12, color: M2 }}>{sub}</div>}
     </div>
   );
 }
 
 function WBar({ wr, total }) {
-  const col = wr >= 50 ? "#4ade80" : R;
+  const col = wr >= 50 ? "#4ade80" : "#f87171";
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-      <div style={{ width: 80, height: 4, background: CARD2, borderRadius: 4, overflow: "hidden" }}>
-        <div style={{ width: wr + "%", height: "100%", background: col, borderRadius: 4, transition: "width 0.5s ease" }} />
+      <div style={{ flex: 1, height: 4, background: CARD2, borderRadius: 4, overflow: "hidden" }}>
+        <div style={{ width: Math.min(wr, 100) + "%", height: "100%", background: col, borderRadius: 4 }} />
       </div>
-      <span style={{ fontSize: 13, fontWeight: 600, color: col, fontFamily: FONT_MONO, minWidth: 36 }}>{total ? wr + "%" : "—"}</span>
+      <span style={{ fontSize: 13, fontWeight: 600, color: col, fontFamily: FONT_MONO, minWidth: 40, textAlign: "right" }}>{total ? wr + "%" : "—"}</span>
     </div>
   );
 }
 
 function SH({ children, color }) {
-  return (
-    <div style={{ fontSize: 11, fontWeight: 700, color: color || M2, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16 }}>
-      {children}
-    </div>
-  );
+  return <div style={{ fontSize: 12, fontWeight: 600, color: color || M2, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 16 }}>{children}</div>;
 }
 
 function ChartTip({ active, payload, label }) {
   if (!active || !payload || !payload.length) return null;
   return (
-    <div style={{ background: CARD2, border: "1px solid " + BORDER, borderRadius: 8, padding: "10px 14px", boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}>
-      <div style={{ color: M2, fontSize: 12, marginBottom: 4, fontWeight: 500 }}>{label}</div>
+    <div style={{ background: CARD2, border: "1px solid " + BORDER2, borderRadius: 8, padding: "10px 14px" }}>
+      <div style={{ color: M2, fontSize: 12, marginBottom: 4 }}>{label}</div>
       {payload.map((p, i) => (
         <div key={i} style={{ color: p.color || TEXT, fontSize: 13, fontFamily: FONT_MONO, fontWeight: 600 }}>{p.name}: {typeof p.value === "number" ? p.value.toFixed(2) : p.value}</div>
       ))}
@@ -425,7 +435,7 @@ function Stars({ value, onChange }) {
     <div style={{ display: "flex", gap: 4 }}>
       {[1, 2, 3, 4, 5].map(n => (
         <span key={n} onClick={() => onChange && onChange(n)}
-          style={{ fontSize: 20, cursor: onChange ? "pointer" : "default", color: n <= (value || 0) ? "#facc15" : MUTED, transition: "color 0.15s" }}>★</span>
+          style={{ fontSize: 18, cursor: onChange ? "pointer" : "default", color: n <= (value || 0) ? GOLD : MUTED }}>★</span>
       ))}
     </div>
   );
@@ -434,12 +444,32 @@ function Stars({ value, onChange }) {
 function TplBadge({ id }) {
   const t = TEMPLATES.find(x => x.id === id);
   if (!t) return null;
-  return <span style={{ background: BC[t.bias] + "15", color: BC[t.bias], padding: "2px 6px", borderRadius: 20, fontSize: 16, fontFamily: FONT_MONO, whiteSpace: "nowrap" }}>{t.name}</span>;
+  const c = BC[t.bias];
+  return <span style={{ background: c + "15", color: c, padding: "2px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600, border: "1px solid " + c + "30" }}>{t.name}</span>;
 }
 
 function EmoBadge({ emotion }) {
   const col = EMO_COLORS[emotion] || M2;
-  return <span style={{ background: col + "20", color: col, padding: "2px 7px", borderRadius: 20, fontSize: 16, fontFamily: FONT_MONO }}>{emotion}</span>;
+  return <span style={{ background: col + "15", color: col, padding: "2px 8px", borderRadius: 6, fontSize: 11, fontWeight: 500, border: "1px solid " + col + "30" }}>{emotion}</span>;
+}
+
+// Direction badge — matches screenshot style
+function DirBadge({ dir }) {
+  const isLong = dir === "Long";
+  return (
+    <span style={{ background: "transparent", color: isLong ? "#4ade80" : "#f87171", border: "1px solid " + (isLong ? "#4ade8060" : "#f8717160"), padding: "3px 10px", borderRadius: 6, fontSize: 12, fontWeight: 600 }}>
+      {dir.toUpperCase()}
+    </span>
+  );
+}
+
+// Market/session badge
+function MarketBadge({ pair }) {
+  const isCrypto = pair?.includes("BTC") || pair?.includes("ETH");
+  const isGold = pair?.includes("XAU");
+  const bg = isCrypto ? "#7c3aed" : isGold ? "#d97706" : "#0e7490";
+  const label = isCrypto ? "CRYPTO" : isGold ? "METALS" : "FOREX";
+  return <span style={{ background: bg + "20", color: bg === "#0e7490" ? "#22d3ee" : bg === "#d97706" ? "#fbbf24" : "#c084fc", border: "1px solid " + bg + "40", padding: "3px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600 }}>{label}</span>;
 }
 
 // ─── AI FUNCTIONS ─────────────────────────────────────────────────────────────
@@ -586,210 +616,280 @@ function TradeModal({ trade, onSave, onClose, onDelete }) {
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const toggleCheck = item => setForm(f => ({ ...f, checklist: { ...f.checklist, [item]: !f.checklist[item] } }));
   const doSave = () => onSave({ ...form, id: (trade && trade.id) || Date.now(), rrActual: parseFloat(form.rrActual) || 0 });
-  const inp = { background: "#0b0d12", border: "1px solid " + BORDER, borderRadius: 5, color: TEXT, padding: "7px 11px", width: "100%", fontSize: 17, fontFamily: FONT_MONO, outline: "none", boxSizing: "border-box" };
-  const lbl = { fontSize: 16, color: M2, textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 4, display: "block", fontFamily: FONT_MONO };
+
+  // Shared input style — matches the dark fintech look
+  const inp = {
+    background: CARD2, border: "1px solid " + BORDER2, borderRadius: 10,
+    color: TEXT, padding: "11px 14px", width: "100%", fontSize: 14,
+    fontFamily: FONT_BODY, outline: "none", boxSizing: "border-box",
+    transition: "border-color 0.15s"
+  };
+  const lbl = { fontSize: 11, fontWeight: 600, color: M2, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6, display: "block" };
+
+  // Option button (session, result, direction etc.)
+  const OptBtn = ({ active, onClick, color, children, small }) => (
+    <button onClick={onClick} style={{
+      padding: small ? "6px 12px" : "9px 16px",
+      borderRadius: 8,
+      border: "1px solid " + (active ? (color || GOLD) : BORDER2),
+      background: active ? (color || GOLD) + "18" : "transparent",
+      color: active ? (color || GOLD) : M2,
+      cursor: "pointer", fontFamily: FONT_BODY,
+      fontSize: 13, fontWeight: active ? 600 : 400,
+      transition: "all 0.15s"
+    }}>{children}</button>
+  );
+
+  const TABS = [["details","Trade Details"],["template","Weekly Template"],["psycho","Psychology"],["reflect","Self-Assessment"]];
   const isTpl = tab === "template";
-  const saveBtnStyle = { padding: "8px 20px", borderRadius: 7, border: "none", background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff", cursor: "pointer", fontFamily: FONT_BODY, fontSize: 16, fontWeight: 600, boxShadow: "0 2px 12px #6366f140" };
+
+  const Footer = () => (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 28px", borderTop: "1px solid " + BORDER, flexShrink: 0, background: CARD }}>
+      <div style={{ display: "flex", gap: 8 }}>
+        {trade && (
+          <button onClick={() => onDelete(trade.id)} style={{ padding: "9px 16px", borderRadius: 8, border: "1px solid " + R + "40", background: "transparent", color: R, cursor: "pointer", fontSize: 13, fontWeight: 500 }}>
+            Delete Trade
+          </button>
+        )}
+        <button onClick={onClose} style={{ padding: "9px 16px", borderRadius: 8, border: "1px solid " + BORDER2, background: "transparent", color: M2, cursor: "pointer", fontSize: 13 }}>
+          Cancel
+        </button>
+      </div>
+      <button onClick={doSave} style={{ padding: "10px 28px", borderRadius: 8, border: "none", background: GOLD, color: "#000", cursor: "pointer", fontSize: 14, fontWeight: 700, boxShadow: "0 4px 20px " + GOLD + "40", letterSpacing: "0.01em" }}>
+        {trade ? "Update Trade" : "Log + AI Review →"}
+      </button>
+    </div>
+  );
+
   return (
-    <div style={{ position: "fixed", inset: 0, background: "#000000d0", zIndex: 900, display: "flex", alignItems: "center", justifyContent: "center", padding: 12 }}
+    <div className="modal-outer" style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", zIndex: 900, display: "flex", alignItems: "flex-end", justifyContent: "center", padding: "0", backdropFilter: "blur(4px)" }}
       onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={{ background: CARD, border: "1px solid " + BORDER, borderRadius: 12, width: "100%", maxWidth: isTpl ? 720 : 520, height: isTpl ? "85vh" : "auto", maxHeight: "92vh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", borderBottom: "1px solid " + BORDER, flexShrink: 0 }}>
-          <span style={{ fontFamily: FONT_MONO, fontSize: 17, fontWeight: 700, letterSpacing: 2, color: TEXT }}>{trade ? "EDIT TRADE" : "LOG TRADE"}</span>
-          <div style={{ display: "flex", gap: 3 }}>
-            {[["details","Details"],["template","Template"],["psycho","Psychology"],["reflect","Reflect"]].map(([id, label]) => (
-              <button key={id} onClick={() => setTab(id)}
-                style={{ padding: "4px 10px", borderRadius: 6, border: "1px solid " + (tab === id ? ACCENT : BORDER), background: tab === id ? ACCENT + "20" : "transparent", color: tab === id ? "#a5b4fc" : M2, cursor: "pointer", fontFamily: FONT_BODY, fontSize: 17, fontWeight: tab === id ? 600 : 400 }}>
-                {label}
-              </button>
-            ))}
-            <button onClick={onClose} style={{ background: "none", border: "none", color: M2, fontSize: 18, cursor: "pointer", lineHeight: 1, padding: "0 3px", marginLeft: 3 }}>×</button>
+      <div className="modal-inner" style={{ background: CARD, border: "1px solid " + BORDER2, borderRadius: "16px 16px 0 0", width: "100%", maxWidth: isTpl ? 780 : 640, maxHeight: "96vh", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 -8px 64px rgba(0,0,0,0.7)", margin: "auto" }}>
+
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 28px", borderBottom: "1px solid " + BORDER, flexShrink: 0 }}>
+          <div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: TEXT, letterSpacing: "-0.01em" }}>{trade ? "Edit Trade" : "Log New Trade"}</div>
+            <div style={{ fontSize: 13, color: M2, marginTop: 2 }}>Fill in the details below and get an instant AI review</div>
           </div>
+          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 8, border: "1px solid " + BORDER2, background: CARD2, color: M2, cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
         </div>
 
+        {/* Tab bar */}
+        <div style={{ display: "flex", borderBottom: "1px solid " + BORDER, flexShrink: 0, padding: "0 28px" }}>
+          {TABS.map(([id, label]) => (
+            <button key={id} onClick={() => setTab(id)} style={{
+              padding: "12px 16px", border: "none",
+              borderBottom: "2px solid " + (tab === id ? GOLD : "transparent"),
+              background: "transparent",
+              color: tab === id ? GOLD : M2,
+              cursor: "pointer", fontFamily: FONT_BODY,
+              fontSize: 13, fontWeight: tab === id ? 600 : 400,
+              transition: "all 0.15s", marginRight: 4
+            }}>{label}</button>
+          ))}
+        </div>
+
+        {/* DETAILS TAB */}
         {tab === "details" && (
-          <div style={{ overflowY: "auto", padding: 14 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              <div><label style={lbl}>Date</label><input type="date" value={form.date} onChange={e => set("date", e.target.value)} style={inp} /></div>
-              <div><label style={lbl}>Time UTC</label><input type="time" value={form.time} onChange={e => set("time", e.target.value)} style={inp} /></div>
+          <>
+            <div style={{ overflowY: "auto", padding: "24px 28px", display: "flex", flexDirection: "column", gap: 20 }}>
+
+              {/* Row 1: Date, Time, Pair */}
+              <div className="modal-grid-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+                <div>
+                  <label style={lbl}>Date</label>
+                  <input type="date" value={form.date} onChange={e => set("date", e.target.value)} style={inp} />
+                </div>
+                <div>
+                  <label style={lbl}>Time (UTC)</label>
+                  <input type="time" value={form.time} onChange={e => set("time", e.target.value)} style={inp} />
+                </div>
+                <div>
+                  <label style={lbl}>Symbol</label>
+                  <select value={form.pair} onChange={e => set("pair", e.target.value)} style={{ ...inp, cursor: "pointer" }}>
+                    {PAIRS.map(p => <option key={p} style={{ background: CARD2 }}>{p}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              {/* Direction */}
               <div>
-                <label style={lbl}>Pair</label>
-                <select value={form.pair} onChange={e => set("pair", e.target.value)} style={inp}>
-                  {PAIRS.map(p => <option key={p}>{p}</option>)}
-                </select>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
                 <label style={lbl}>Direction</label>
-                <div style={{ display: "flex", gap: 5 }}>
-                  {["Long","Short"].map(o => (
-                    <button key={o} onClick={() => set("direction", o)}
-                      style={{ flex: 1, padding: "6px", borderRadius: 5, border: "1px solid " + (form.direction === o ? G : BORDER), background: form.direction === o ? G + "15" : "transparent", color: form.direction === o ? G : M2, fontSize: 16, cursor: "pointer", fontFamily: FONT_MONO }}>
-                      {o}
-                    </button>
-                  ))}
+                <div style={{ display: "flex", gap: 10 }}>
+                  <button onClick={() => set("direction", "Long")} style={{ flex: 1, padding: "12px", borderRadius: 10, border: "1px solid " + (form.direction === "Long" ? "#22c55e" : BORDER2), background: form.direction === "Long" ? "#22c55e15" : "transparent", color: form.direction === "Long" ? "#4ade80" : M2, cursor: "pointer", fontSize: 14, fontWeight: 600, transition: "all 0.15s" }}>▲ Long</button>
+                  <button onClick={() => set("direction", "Short")} style={{ flex: 1, padding: "12px", borderRadius: 10, border: "1px solid " + (form.direction === "Short" ? "#ef4444" : BORDER2), background: form.direction === "Short" ? "#ef444415" : "transparent", color: form.direction === "Short" ? "#f87171" : M2, cursor: "pointer", fontSize: 14, fontWeight: 600, transition: "all 0.15s" }}>▼ Short</button>
                 </div>
               </div>
-              <div><label style={lbl}>Entry Price (opt)</label><input type="number" step="0.00001" value={form.entryPrice} onChange={e => set("entryPrice", e.target.value)} style={inp} placeholder="e.g. 1.08500" /></div>
-              <div><label style={lbl}>Risk (R)</label><input type="number" step="0.1" value={form.riskR} onChange={e => set("riskR", e.target.value)} style={inp} /></div>
-              <div style={{ gridColumn: "1/-1" }}>
-                <label style={lbl}>Session</label>
-                <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
-                  {SESSIONS.map(o => (
-                    <button key={o} onClick={() => set("session", o)}
-                      style={{ padding: "5px 10px", borderRadius: 5, border: "1px solid " + (form.session === o ? G : BORDER), background: form.session === o ? G + "15" : "transparent", color: form.session === o ? G : M2, fontSize: 16, cursor: "pointer", fontFamily: FONT_MONO }}>
-                      {o}
-                    </button>
-                  ))}
+
+              {/* Entry, Risk, Planned RR, Actual RR */}
+              <div className="modal-grid-4" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 16 }}>
+                <div>
+                  <label style={lbl}>Entry Price</label>
+                  <input type="number" step="0.00001" value={form.entryPrice} onChange={e => set("entryPrice", e.target.value)} style={inp} placeholder="1.08500" />
+                </div>
+                <div>
+                  <label style={lbl}>Risk (R)</label>
+                  <input type="number" step="0.1" value={form.riskR} onChange={e => set("riskR", e.target.value)} style={inp} />
+                </div>
+                <div>
+                  <label style={lbl}>Planned RR</label>
+                  <input type="number" step="0.1" value={form.rrPlanned} onChange={e => set("rrPlanned", e.target.value)} style={inp} />
+                </div>
+                <div>
+                  <label style={lbl}>Actual RR</label>
+                  <input type="number" step="0.1" value={form.rrActual} onChange={e => set("rrActual", e.target.value)} style={inp} placeholder="2.5 or -1" />
                 </div>
               </div>
-              <div style={{ gridColumn: "1/-1" }}>
-                <label style={lbl}>ICT Setup</label>
-                <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-                  {SETUPS.map(o => (
-                    <button key={o} onClick={() => set("setup", o)}
-                      style={{ padding: "3px 7px", borderRadius: 5, border: "1px solid " + (form.setup === o ? G : BORDER), background: form.setup === o ? G + "15" : "transparent", color: form.setup === o ? G : M2, fontSize: 16, cursor: "pointer", fontFamily: FONT_MONO }}>
-                      {o}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div><label style={lbl}>Planned RR</label><input type="number" step="0.1" value={form.rrPlanned} onChange={e => set("rrPlanned", e.target.value)} style={inp} /></div>
-              <div><label style={lbl}>Actual RR</label><input type="number" step="0.1" value={form.rrActual} onChange={e => set("rrActual", e.target.value)} style={inp} placeholder="e.g. 2.5 or -1" /></div>
-              <div style={{ gridColumn: "1/-1" }}>
+
+              {/* Result */}
+              <div>
                 <label style={lbl}>Result</label>
-                <div style={{ display: "flex", gap: 5 }}>
-                  {["Win","Loss","BE","Open"].map(o => (
-                    <button key={o} onClick={() => set("result", o)}
-                      style={{ flex: 1, padding: "6px", borderRadius: 5, border: "1px solid " + (form.result === o ? G : BORDER), background: form.result === o ? G + "15" : "transparent", color: form.result === o ? G : M2, fontSize: 16, cursor: "pointer", fontFamily: FONT_MONO }}>
-                      {o}
-                    </button>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 10 }}>
+                  {[["Win","#22c55e","#4ade80"],["Loss","#ef4444","#f87171"],["BE","#d97706","#fbbf24"],["Open","#52525b","#a3a3a3"]].map(([o, border, text]) => (
+                    <button key={o} onClick={() => set("result", o)} style={{ padding: "11px", borderRadius: 10, border: "1px solid " + (form.result === o ? border : BORDER2), background: form.result === o ? border + "15" : "transparent", color: form.result === o ? text : M2, cursor: "pointer", fontSize: 14, fontWeight: form.result === o ? 700 : 400, transition: "all 0.15s" }}>{o}</button>
                   ))}
                 </div>
               </div>
-              <div style={{ gridColumn: "1/-1" }}>
+
+              {/* Session */}
+              <div>
+                <label style={lbl}>Session</label>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {SESSIONS.map(o => <OptBtn key={o} active={form.session === o} onClick={() => set("session", o)} color={GOLD}>{o}</OptBtn>)}
+                </div>
+              </div>
+
+              {/* ICT Setup */}
+              <div>
+                <label style={lbl}>ICT Setup</label>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  {SETUPS.map(o => <OptBtn key={o} active={form.setup === o} onClick={() => set("setup", o)} color={GOLD} small>{o}</OptBtn>)}
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div>
                 <label style={lbl}>Notes</label>
-                <textarea value={form.notes} onChange={e => set("notes", e.target.value)} rows={2} style={{ ...inp, resize: "vertical" }} placeholder="Setup rationale, confluences…" />
+                <textarea value={form.notes} onChange={e => set("notes", e.target.value)} rows={3}
+                  style={{ ...inp, resize: "vertical", lineHeight: 1.6 }}
+                  placeholder="Setup rationale, confluences, market context…" />
               </div>
             </div>
-            <div style={{ display: "flex", gap: 6, marginTop: 13, justifyContent: "flex-end" }}>
-              {trade && <button onClick={() => onDelete(trade.id)} style={{ padding: "6px 12px", borderRadius: 5, border: "1px solid " + R + "50", background: "transparent", color: R, cursor: "pointer", fontFamily: FONT_MONO, fontSize: 16 }}>Delete</button>}
-              <button onClick={onClose} style={{ padding: "6px 12px", borderRadius: 5, border: "1px solid " + BORDER, background: "transparent", color: M2, cursor: "pointer", fontFamily: FONT_MONO, fontSize: 16 }}>Cancel</button>
-              <button onClick={doSave} style={saveBtnStyle}>{trade ? "Update" : "Log + Review"}</button>
-            </div>
-          </div>
+            <Footer />
+          </>
         )}
 
+        {/* TEMPLATE TAB */}
         {tab === "template" && (
           <div style={{ display: "flex", flexDirection: "column", flex: 1, overflow: "hidden" }}>
             <TemplatePicker value={form.weeklyTemplate} onChange={v => set("weeklyTemplate", v)} direction={form.direction} />
-            <div style={{ display: "flex", justifyContent: "flex-end", padding: "10px 14px", borderTop: "1px solid " + BORDER, flexShrink: 0 }}>
-              <button onClick={doSave} style={saveBtnStyle}>{trade ? "Update" : "Log + Review"}</button>
-            </div>
+            <Footer />
           </div>
         )}
 
+        {/* PSYCHOLOGY TAB */}
         {tab === "psycho" && (
-          <div style={{ overflowY: "auto", padding: 14 }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <>
+            <div style={{ overflowY: "auto", padding: "24px 28px", display: "flex", flexDirection: "column", gap: 24 }}>
+
+              {/* Emotional State */}
               <div>
-                <label style={lbl}>Emotional State</label>
-                <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                <label style={lbl}>Emotional State Before Trade</label>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   {EMOTIONS.map(e => {
                     const col = EMO_COLORS[e] || M2;
                     return (
-                      <button key={e} onClick={() => set("emotion", form.emotion === e ? "" : e)}
-                        style={{ padding: "4px 8px", borderRadius: 20, border: "1px solid " + (form.emotion === e ? col : BORDER), background: form.emotion === e ? col + "15" : "transparent", color: form.emotion === e ? col : M2, fontSize: 16, cursor: "pointer", fontFamily: FONT_MONO }}>
-                        {e}
-                      </button>
+                      <button key={e} onClick={() => set("emotion", form.emotion === e ? "" : e)} style={{ padding: "8px 14px", borderRadius: 20, border: "1px solid " + (form.emotion === e ? col : BORDER2), background: form.emotion === e ? col + "18" : "transparent", color: form.emotion === e ? col : M2, cursor: "pointer", fontSize: 13, fontWeight: form.emotion === e ? 600 : 400, transition: "all 0.15s" }}>{e}</button>
                     );
                   })}
                 </div>
               </div>
+
+              {/* Discipline */}
               <div>
                 <label style={lbl}>Discipline Score</label>
-                <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                   <Stars value={form.discipline} onChange={v => set("discipline", v)} />
-                  <span style={{ fontSize: 16, color: M2 }}>{["Select…","Off-plan","Major breaks","Some breaks","Minor deviation","Perfect"][form.discipline] || "Select…"}</span>
+                  <span style={{ fontSize: 13, color: M2 }}>{["Select…","Off-plan","Major breaks","Some breaks","Minor deviation","Perfect execution"][form.discipline] || "Select…"}</span>
                 </div>
               </div>
+
+              {/* Checklist */}
               <div>
                 <label style={lbl}>Pre-Trade Checklist</label>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {CHECKLIST.map(item => (
-                    <div key={item} onClick={() => toggleCheck(item)}
-                      style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", padding: "7px 10px", borderRadius: 5, background: form.checklist[item] ? G + "10" : CARD2, border: "1px solid " + (form.checklist[item] ? G + "40" : BORDER) }}>
-                      <div style={{ width: 13, height: 13, borderRadius: 3, border: "1.5px solid " + (form.checklist[item] ? G : MUTED), background: form.checklist[item] ? G : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        {form.checklist[item] && <span style={{ color: "#000", fontSize: 16, fontWeight: 900 }}>✓</span>}
+                    <div key={item} onClick={() => toggleCheck(item)} style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer", padding: "12px 16px", borderRadius: 10, background: form.checklist[item] ? "#22c55e08" : CARD2, border: "1px solid " + (form.checklist[item] ? "#22c55e40" : BORDER), transition: "all 0.15s" }}>
+                      <div style={{ width: 18, height: 18, borderRadius: 5, border: "1.5px solid " + (form.checklist[item] ? "#22c55e" : MUTED), background: form.checklist[item] ? "#22c55e" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.15s" }}>
+                        {form.checklist[item] && <span style={{ color: "#000", fontSize: 11, fontWeight: 900, lineHeight: 1 }}>✓</span>}
                       </div>
-                      <span style={{ fontSize: 16, color: form.checklist[item] ? TEXT : M2 }}>{item}</span>
+                      <span style={{ fontSize: 14, color: form.checklist[item] ? TEXT : TEXT2 }}>{item}</span>
                     </div>
                   ))}
                 </div>
               </div>
+
+              {/* Mindset */}
               <div>
                 <label style={lbl}>Mindset Note</label>
-                <textarea value={form.mindset} onChange={e => set("mindset", e.target.value)} rows={2} style={{ ...inp, resize: "vertical" }} placeholder="Mental state, confidence, hesitation…" />
+                <textarea value={form.mindset} onChange={e => set("mindset", e.target.value)} rows={3} style={{ ...inp, resize: "vertical", lineHeight: 1.6 }} placeholder="Describe your mental state, confidence level, any hesitation…" />
               </div>
             </div>
-            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}>
-              <button onClick={doSave} style={saveBtnStyle}>{trade ? "Update" : "Log + Review"}</button>
-            </div>
-          </div>
+            <Footer />
+          </>
         )}
 
+        {/* SELF-ASSESSMENT TAB */}
         {tab === "reflect" && (
-          <div style={{ overflowY: "auto", padding: 16, flex: 1 }}>
-            <div style={{ marginBottom: 16, padding: "10px 14px", background: G + "08", border: "1px solid " + G + "20", borderRadius: 8 }}>
-              <div style={{ fontSize: 16, fontWeight: 600, color: G, marginBottom: 4 }}>Post-Trade Self-Assessment</div>
-              <div style={{ fontSize: 17, color: M2, lineHeight: 1.6 }}>Answer honestly — the AI coach uses these to identify patterns and give you targeted advice on how to improve.</div>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {REFLECTION_QUESTIONS.map((q, i) => {
-                const ans = (form.reflection || {})[q.id];
-                const setAns = v => setForm(f => ({ ...f, reflection: { ...(f.reflection || {}), [q.id]: v } }));
-                return (
-                  <div key={q.id} style={{ background: CARD2, border: "1px solid " + BORDER, borderRadius: 8, padding: "12px 14px" }}>
-                    <div style={{ fontSize: 17, color: TEXT, fontWeight: 500, marginBottom: 8, lineHeight: 1.4 }}>
-                      <span style={{ color: M2, fontFamily: FONT_MONO, fontSize: 16, marginRight: 6 }}>{String(i + 1).padStart(2, "0")}.</span>
-                      {q.q}
+          <>
+            <div style={{ overflowY: "auto", padding: "24px 28px", flex: 1 }}>
+              <div style={{ marginBottom: 20, padding: "14px 18px", background: GOLD + "10", border: "1px solid " + GOLD + "30", borderRadius: 10, display: "flex", gap: 12, alignItems: "flex-start" }}>
+                <span style={{ fontSize: 20, flexShrink: 0 }}>💡</span>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: GOLD, marginBottom: 4 }}>Post-Trade Self-Assessment</div>
+                  <div style={{ fontSize: 13, color: TEXT2, lineHeight: 1.6 }}>Answer honestly — the AI coach uses these to identify patterns and give you targeted feedback on how to improve faster.</div>
+                </div>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {REFLECTION_QUESTIONS.map((q, i) => {
+                  const ans = (form.reflection || {})[q.id];
+                  const setAns = v => setForm(f => ({ ...f, reflection: { ...(f.reflection || {}), [q.id]: v } }));
+                  return (
+                    <div key={q.id} style={{ background: CARD2, border: "1px solid " + BORDER, borderRadius: 12, padding: "16px 18px" }}>
+                      <div style={{ fontSize: 14, color: TEXT, fontWeight: 500, marginBottom: 12, lineHeight: 1.5 }}>
+                        <span style={{ color: MUTED, fontFamily: FONT_MONO, fontSize: 11, marginRight: 8 }}>{String(i + 1).padStart(2, "0")}</span>
+                        {q.q}
+                      </div>
+                      {q.type === "yn" && (
+                        <div style={{ display: "flex", gap: 8 }}>
+                          {[["Yes", true, "#22c55e","#4ade80"], ["No", false, "#ef4444","#f87171"], ["N/A", "na", MUTED, M2]].map(([label, val, border, text]) => (
+                            <button key={label} onClick={() => setAns(ans === val ? undefined : val)} style={{ padding: "7px 20px", borderRadius: 8, border: "1px solid " + (ans === val ? border : BORDER2), background: ans === val ? border + "15" : "transparent", color: ans === val ? text : M2, cursor: "pointer", fontSize: 13, fontWeight: ans === val ? 600 : 400, transition: "all .12s" }}>{label}</button>
+                          ))}
+                        </div>
+                      )}
+                      {q.type === "choice" && (
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                          {q.options.map((opt, oi) => {
+                            const col = oi === 0 ? "#22c55e" : oi === 1 ? GOLD : "#ef4444";
+                            const txt = oi === 0 ? "#4ade80" : oi === 1 ? GOLD_L : "#f87171";
+                            return <button key={opt} onClick={() => setAns(ans === opt ? undefined : opt)} style={{ padding: "7px 16px", borderRadius: 8, border: "1px solid " + (ans === opt ? col : BORDER2), background: ans === opt ? col + "15" : "transparent", color: ans === opt ? txt : M2, cursor: "pointer", fontSize: 13, fontWeight: ans === opt ? 600 : 400, transition: "all .12s" }}>{opt}</button>;
+                          })}
+                        </div>
+                      )}
+                      {q.type === "text" && (
+                        <textarea value={ans || ""} onChange={e => setAns(e.target.value)} rows={2} placeholder="Write your honest answer…" style={{ ...inp, resize: "vertical", lineHeight: 1.6 }} />
+                      )}
                     </div>
-                    {q.type === "yn" && (
-                      <div style={{ display: "flex", gap: 6 }}>
-                        {[["Yes", true, G], ["No", false, R], ["N/A", "na", M2]].map(([label, val, col]) => (
-                          <button key={label} onClick={() => setAns(ans === val ? undefined : val)}
-                            style={{ padding: "5px 16px", borderRadius: 6, border: "1px solid " + (ans === val ? col : BORDER), background: ans === val ? col + "15" : "transparent", color: ans === val ? col : M2, cursor: "pointer", fontSize: 17, fontWeight: ans === val ? 700 : 400, transition: "all .12s" }}>
-                            {label}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                    {q.type === "choice" && (
-                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                        {q.options.map((opt, oi) => {
-                          const col = oi === 0 ? G : oi === 1 ? A : R;
-                          return (
-                            <button key={opt} onClick={() => setAns(ans === opt ? undefined : opt)}
-                              style={{ padding: "5px 14px", borderRadius: 6, border: "1px solid " + (ans === opt ? col : BORDER), background: ans === opt ? col + "15" : "transparent", color: ans === opt ? col : M2, cursor: "pointer", fontSize: 17, fontWeight: ans === opt ? 700 : 400, transition: "all .12s" }}>
-                              {opt}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
-                    {q.type === "text" && (
-                      <textarea value={ans || ""} onChange={e => setAns(e.target.value)} rows={2}
-                        placeholder="Write your honest answer…"
-                        style={{ background: "#0b0d12", border: "1px solid " + BORDER, borderRadius: 5, color: TEXT, padding: "7px 11px", width: "100%", fontSize: 17, fontFamily: FONT_BODY, outline: "none", boxSizing: "border-box", resize: "vertical" }} />
-                    )}
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
+              <div style={{ marginTop: 16, display: "flex", justifyContent: "flex-end" }}>
+                <span style={{ fontSize: 13, color: M2, fontFamily: FONT_MONO }}>{Object.keys(form.reflection || {}).length}/{REFLECTION_QUESTIONS.length} answered</span>
+              </div>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 16 }}>
-              <span style={{ fontSize: 16, color: M2 }}>{Object.keys(form.reflection || {}).length}/{REFLECTION_QUESTIONS.length} answered</span>
-              <button onClick={doSave} style={saveBtnStyle}>{trade ? "Update" : "Log + Review"}</button>
-            </div>
-          </div>
+            <Footer />
+          </>
         )}
       </div>
     </div>
@@ -825,7 +925,7 @@ function TradeDetail({ trade, onClose, onEdit, onUpdateScreenshots }) {
             <div style={{ display: "flex", borderBottom: "1px solid " + BORDER, flexShrink: 0 }}>
               {[["review","Review"],["info","Info"],["psycho","Psyche"],["reflect","Reflect"]].map(([id, label]) => (
                 <button key={id} onClick={() => setPanelTab(id)}
-                  style={{ flex: 1, padding: "10px 0", border: "none", borderBottom: "2px solid " + (panelTab === id ? ACCENT : "transparent"), background: "transparent", color: panelTab === id ? "#a5b4fc" : M2, cursor: "pointer", fontFamily: FONT_BODY, fontSize: 17, fontWeight: panelTab === id ? 600 : 400 }}>
+                  style={{ flex: 1, padding: "10px 0", border: "none", borderBottom: "2px solid " + (panelTab === id ? ACCENT : "transparent"), background: "transparent", color: panelTab === id ? GOLD : M2, cursor: "pointer", fontFamily: FONT_BODY, fontSize: 17, fontWeight: panelTab === id ? 600 : 400 }}>
                   {label}
                 </button>
               ))}
@@ -969,7 +1069,7 @@ function CalendarLog({ trades, onSelectTrade, onNewTrade }) {
     return y + "-" + mo + "-" + day;
   };
 
-  const btnStyle = active => ({ padding: "6px 16px", borderRadius: 6, border: "1px solid " + (active ? ACCENT : BORDER), background: active ? ACCENT + "20" : "transparent", color: active ? "#a5b4fc" : M2, cursor: "pointer", fontFamily: FONT_BODY, fontSize: 16, fontWeight: active ? 600 : 400 });
+  const btnStyle = active => ({ padding: "6px 16px", borderRadius: 6, border: "1px solid " + (active ? GOLD : BORDER), background: active ? GOLD + "15" : "transparent", color: active ? GOLD : M2, cursor: "pointer", fontFamily: FONT_BODY, fontSize: 16, fontWeight: active ? 600 : 400 });
   const navBtn = onClick => ({ background: "none", border: "none", color: M2, cursor: "pointer", fontSize: 18, padding: "0 6px", lineHeight: 1 });
 
   // ── MONTHLY ──
@@ -1396,10 +1496,14 @@ function TradingJournal() {
     fontSize: 14,
     fontWeight: tab === t ? 600 : 400,
     transition: "all 0.15s",
-    textTransform: "capitalize"
   });
-  const thS = { padding: "12px 16px", fontSize: 11, fontWeight: 700, color: M2, textTransform: "uppercase", letterSpacing: "0.08em", textAlign: "left", borderBottom: "1px solid " + BORDER, whiteSpace: "nowrap" };
-  const tdS = { padding: "14px 16px", fontSize: 14, color: TEXT, borderBottom: "1px solid " + BORDER + "60", verticalAlign: "middle" };
+  const thS = { padding: "12px 20px", fontSize: 11, fontWeight: 700, color: M2, textTransform: "uppercase", letterSpacing: "0.08em", textAlign: "left", borderBottom: "1px solid " + BORDER2, whiteSpace: "nowrap", background: CARD };
+  const tdS = { padding: "16px 20px", fontSize: 14, color: TEXT, borderBottom: "1px solid " + BORDER, verticalAlign: "middle" };
+
+  // Greeting
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
   return (
     <div style={{ background: BG, minHeight: "100vh", color: TEXT, fontFamily: FONT_BODY }}>
@@ -1407,133 +1511,215 @@ function TradingJournal() {
         @import url('${FONT_URL}');
         html, body, #root { margin:0; padding:0; width:100%; min-height:100vh; background:${BG}; -webkit-font-smoothing:antialiased; }
         * { box-sizing:border-box; }
-        body { font-family:${FONT_BODY}; color:${TEXT}; font-size:15px; }
+        body { font-family:${FONT_BODY}; color:${TEXT}; font-size:15px; font-feature-settings:"kern" 1,"liga" 1; }
+        h1,h2,h3 { font-family:${FONT_BODY}; letter-spacing:-0.02em; }
         button, input, select, textarea { font-family:${FONT_BODY}; }
+        .mono, [class*="mono"] { font-family:${FONT_MONO}; font-feature-settings:"tnum" 1; }
         ::-webkit-scrollbar { width:5px; height:5px; }
         ::-webkit-scrollbar-track { background:transparent; }
         ::-webkit-scrollbar-thumb { background:${MUTED}; border-radius:4px; }
         @keyframes spin { to { transform:rotate(360deg); } }
         @keyframes slideIn { from { transform:translateX(100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
+        @keyframes slideUp { from { transform:translateY(100%); opacity:0; } to { transform:translateY(0); opacity:1; } }
         @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        tr:hover td { background: ${CARD3} !important; }
+
+        /* Modal — bottom sheet on mobile, centered on desktop */
+        @media (min-width: 769px) {
+          .modal-outer { align-items: center !important; padding: 20px !important; }
+          .modal-inner { border-radius: 16px !important; margin: auto !important; }
+        }
+        @media (max-width: 768px) {
+          .modal-inner { max-height: 95vh !important; border-radius: 20px 20px 0 0 !important; }
+          .modal-tabs button { font-size: 11px !important; padding: 10px 8px !important; }
+        }
+        @media (max-width: 768px) {
+          .nav-links { display: none !important; }
+          .nav-mobile-tabs { display: flex !important; }
+          .stat-grid { grid-template-columns: 1fr 1fr !important; }
+          .chart-grid { grid-template-columns: 1fr !important; }
+          .modal-grid-3 { grid-template-columns: 1fr 1fr !important; }
+          .modal-grid-4 { grid-template-columns: 1fr 1fr !important; }
+          .detail-panel { grid-template-columns: 1fr !important; }
+          .detail-right { display: none !important; }
+          .detail-full { display: flex !important; flex-direction: column !important; }
+          .calendar-weekly { grid-template-columns: repeat(4, 1fr) !important; }
+          .hide-mobile { display: none !important; }
+          .page-pad { padding: 16px 14px !important; }
+          .nav-pad { padding: 0 14px !important; }
+          .modal-pad { padding: 16px 18px !important; }
+          .table-scroll { overflow-x: auto !important; }
+        }
+        @media (max-width: 480px) {
+          .stat-grid { grid-template-columns: 1fr !important; }
+          .modal-grid-3 { grid-template-columns: 1fr !important; }
+          .modal-grid-4 { grid-template-columns: 1fr 1fr !important; }
+          .calendar-weekly { grid-template-columns: repeat(3, 1fr) !important; }
+        }
       `}</style>
 
       {!loaded && (
         <div style={{ position: "fixed", inset: 0, background: BG, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24, zIndex: 9999 }}>
-          <div style={{ fontSize: 32, fontWeight: 700, background: "linear-gradient(135deg, #818cf8, #34d399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "-0.03em" }}>TradeLog</div>
-          <div style={{ width: 36, height: 36, border: "3px solid " + MUTED, borderTopColor: ACCENT, borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
-          <span style={{ fontSize: 14, color: M2, letterSpacing: "0.02em" }}>Loading your trades…</span>
+          <div style={{ fontSize: 32, fontWeight: 700, color: GOLD, letterSpacing: "-0.03em" }}>TradeLog</div>
+          <div style={{ width: 36, height: 36, border: "3px solid " + MUTED, borderTopColor: GOLD, borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+          <span style={{ fontSize: 14, color: M2 }}>Loading your trades…</span>
         </div>
       )}
 
-      {/* NAV */}
-      <div style={{ borderBottom: "1px solid " + BORDER, padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, position: "sticky", top: 0, background: BG + "ee", backdropFilter: "blur(12px)", zIndex: 50, height: 60 }}>
-        {/* Logo */}
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{ fontSize: 20, fontWeight: 700, background: "linear-gradient(135deg, #818cf8, #34d399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "-0.02em" }}>TradeLog</div>
-          <div style={{ height: 20, width: 1, background: BORDER }} />
-          <span style={{ fontSize: 13, color: M2, fontWeight: 400 }}>ICT · Forex</span>
-          {stats.total > 0 && (
-            <span style={{ fontSize: 13, padding: "3px 10px", borderRadius: 20, background: (stats.totalR || 0) >= 0 ? G + "15" : R + "15", color: (stats.totalR || 0) >= 0 ? "#4ade80" : "#f87171", fontFamily: FONT_MONO, fontWeight: 600, border: "1px solid " + ((stats.totalR || 0) >= 0 ? G + "30" : R + "30") }}>
-              {(stats.totalR || 0) >= 0 ? "+" : ""}{(stats.totalR || 0).toFixed(2)}R
-            </span>
-          )}
-          {loaded && (
-            <span style={{ fontSize: 12, display: "flex", alignItems: "center", gap: 5, color: syncError ? "#f87171" : syncing ? "#facc15" : "#4ade80" }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "currentColor", display: "inline-block", animation: syncing ? "pulse 1.2s infinite" : "none" }} />
-              {syncError ? "Sync error" : syncing ? "Saving…" : "Saved"}
-            </span>
-          )}
+      {/* NAV — matches screenshot top bar */}
+      <div className="nav-pad" style={{ borderBottom: "1px solid " + BORDER, padding: "0 28px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, position: "sticky", top: 0, background: CARD + "f8", backdropFilter: "blur(16px)", zIndex: 50, height: 56 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 18, fontWeight: 700, color: GOLD, letterSpacing: "-0.02em" }}>TradeLog</span>
+          <span className="hide-mobile" style={{ color: MUTED, fontSize: 14 }}>›</span>
+          <span className="hide-mobile" style={{ fontSize: 14, color: TEXT2, fontWeight: 500 }}>{tab.charAt(0).toUpperCase() + tab.slice(1)}</span>
         </div>
-        {/* Nav links */}
-        <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+        {/* Desktop nav links */}
+        <div className="nav-links" style={{ display: "flex", alignItems: "center", gap: 2 }}>
           {["dashboard","log","psychology","coach","analytics"].map(t => (
             <button key={t} onClick={() => setTab(t)} style={navStyle(t)}>{t.charAt(0).toUpperCase() + t.slice(1)}</button>
           ))}
         </div>
-        {/* Actions */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <button onClick={() => setModal("new")} style={{ padding: "8px 18px", borderRadius: 8, border: "none", background: "linear-gradient(135deg, " + ACCENT2 + ", #7c3aed)", color: "#fff", cursor: "pointer", fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, boxShadow: "0 0 20px " + ACCENT2 + "40", letterSpacing: "0.01em" }}>+ Log Trade</button>
-          <button onClick={() => { localStorage.removeItem("tradelog_auth"); window.location.reload(); }} style={{ width: 36, height: 36, borderRadius: 8, border: "1px solid " + BORDER, background: "transparent", color: M2, cursor: "pointer", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center" }} title="Logout">🔒</button>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {loaded && (
+            <span className="hide-mobile" style={{ fontSize: 12, display: "flex", alignItems: "center", gap: 5, color: syncError ? "#f87171" : syncing ? GOLD : "#4ade80" }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "currentColor", display: "inline-block", animation: syncing ? "pulse 1.2s infinite" : "none" }} />
+              {syncError ? "Sync error" : syncing ? "Saving…" : "Saved"}
+            </span>
+          )}
+          <button onClick={() => setModal("new")} style={{ padding: "8px 16px", borderRadius: 8, border: "none", background: GOLD, color: "#000", cursor: "pointer", fontSize: 13, fontWeight: 700, boxShadow: "0 0 20px " + GOLD + "40", whiteSpace: "nowrap" }}>+ Log</button>
+          <button onClick={() => { localStorage.removeItem("tradelog_auth"); window.location.reload(); }} className="hide-mobile" style={{ width: 34, height: 34, borderRadius: 8, border: "1px solid " + BORDER2, background: "transparent", color: M2, cursor: "pointer", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center" }} title="Logout">🔒</button>
         </div>
       </div>
 
-      <div style={{ padding: "28px 24px", maxWidth: 1200, margin: "0 auto" }}>
+      {/* MOBILE BOTTOM TAB BAR */}
+      <div style={{ display: "none", position: "fixed", bottom: 0, left: 0, right: 0, background: CARD, borderTop: "1px solid " + BORDER, zIndex: 100, padding: "8px 0 calc(8px + env(safe-area-inset-bottom))" }} className="nav-mobile-tabs">
+        {[["dashboard","📊","Home"],["log","📅","Log"],["psychology","🧠","Psyche"],["coach","💬","Coach"],["analytics","📈","Stats"]].map(([t, icon, label]) => (
+          <button key={t} onClick={() => setTab(t)} style={{ flex: 1, border: "none", background: "transparent", color: tab === t ? GOLD : M2, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3, padding: "4px 0", fontSize: 9, fontFamily: FONT_BODY, fontWeight: tab === t ? 600 : 400 }}>
+            <span style={{ fontSize: 20 }}>{icon}</span>
+            <span>{label}</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="page-pad" style={{ padding: "32px 28px", maxWidth: 1280, margin: "0 auto", paddingBottom: 90 }}>
 
         {/* DASHBOARD */}
         {tab === "dashboard" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24, animation: "fadeIn 0.3s ease" }}>
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <StatBox label="Total Trades" value={stats.total || 0} />
-              <StatBox label="Win Rate" value={stats.winRate ? stats.winRate.toFixed(1) + "%" : "—"} color={stats.winRate >= 50 ? "#4ade80" : "#f87171"} sub={stats.wins + "W · " + stats.losses + "L · " + stats.be + "BE"} />
-              <StatBox label="Avg RR" value={stats.avgR ? (stats.avgR > 0 ? "+" : "") + stats.avgR.toFixed(2) + "R" : "—"} color={stats.avgR > 0 ? "#4ade80" : stats.avgR < 0 ? "#f87171" : M2} />
-              <StatBox label="Total R" value={stats.totalR ? (stats.totalR > 0 ? "+" : "") + stats.totalR.toFixed(2) + "R" : "—"} color={(stats.totalR || 0) >= 0 ? "#4ade80" : "#f87171"} />
-              <StatBox label="Profit Factor" value={stats.profitFactor ? (isFinite(stats.profitFactor) ? stats.profitFactor.toFixed(2) : "∞") : "—"} color={stats.profitFactor >= 1.5 ? "#4ade80" : stats.profitFactor >= 1 ? "#facc15" : "#f87171"} />
-              <StatBox label="Expectancy" value={stats.expectancy ? (stats.expectancy > 0 ? "+" : "") + stats.expectancy.toFixed(2) + "R" : "—"} color={(stats.expectancy || 0) >= 0 ? "#4ade80" : "#f87171"} />
+          <div style={{ display: "flex", flexDirection: "column", gap: 28, animation: "fadeIn 0.3s ease" }}>
+            {/* Greeting — like screenshot */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div>
+                <h1 style={{ fontSize: 28, fontWeight: 700, color: TEXT, margin: 0, letterSpacing: "-0.02em" }}>{greeting}, Trader!</h1>
+                <div style={{ fontSize: 14, color: M2, marginTop: 4 }}>{today}</div>
+                {stats.total > 0 && <div style={{ fontSize: 13, color: M2, marginTop: 6 }}>{stats.total} trades recorded · <span style={{ color: (stats.totalR || 0) >= 0 ? "#4ade80" : "#f87171", fontFamily: FONT_MONO, fontWeight: 600 }}>{(stats.totalR || 0) >= 0 ? "+" : ""}{(stats.totalR || 0).toFixed(2)}R total</span></div>}
+              </div>
+              <button onClick={() => setModal("new")} style={{ padding: "10px 22px", borderRadius: 10, border: "none", background: GOLD, color: "#000", cursor: "pointer", fontSize: 14, fontWeight: 700, boxShadow: "0 4px 20px " + GOLD + "50", display: "flex", alignItems: "center", gap: 6 }}>
+                + Log Trade
+              </button>
             </div>
-            <div style={{ background: CARD, border: "1px solid " + BORDER, borderRadius: 16, padding: "24px 24px 16px", boxShadow: "0 4px 24px rgba(0,0,0,0.3)" }}>
-              <SH>Equity Curve</SH>
-              {curve.length < 2 ? <div style={{ color: M2, textAlign: "center", padding: "32px 0", fontSize: 14 }}>Log 2+ closed trades to see your curve</div> : (
-                <ResponsiveContainer width="100%" height={145}>
-                  <LineChart data={curve}>
-                    <XAxis dataKey="i" stroke={BORDER} tick={{ fill: M2, fontSize: 16 }} />
-                    <YAxis stroke={BORDER} tick={{ fill: M2, fontSize: 16 }} />
+
+            {/* Stat cards — matching screenshot layout */}
+            <div className="stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
+              <StatBox label="Total P&L" value={stats.totalR ? (stats.totalR > 0 ? "+" : "") + stats.totalR.toFixed(2) + "R" : "—"} color={(stats.totalR || 0) >= 0 ? "#4ade80" : "#f87171"} sub={"Avg " + (stats.avgR >= 0 ? "+" : "") + (stats.avgR || 0).toFixed(2) + "R per trade"} badge={(stats.totalR >= 0 ? "▲" : "▼") + " " + Math.abs(stats.winRate - 50).toFixed(0) + "%"} />
+              <StatBox label="Win Rate" value={stats.winRate ? stats.winRate.toFixed(1) + "%" : "—"} color={stats.winRate >= 50 ? "#4ade80" : "#f87171"} sub={stats.wins + "W · " + stats.losses + "L · " + stats.be + " BE"} badge={stats.wins + "W / " + stats.losses + "L"} />
+              <StatBox label="Total Trades" value={stats.total || 0} color={TEXT} sub={stats.wins + " winners · " + stats.losses + " losers"} badge={stats.total + " total"} />
+              <StatBox label="Profit Factor" value={stats.profitFactor ? (isFinite(stats.profitFactor) ? stats.profitFactor.toFixed(2) + "x" : "∞") : "—"} color={stats.profitFactor >= 1.5 ? "#4ade80" : stats.profitFactor >= 1 ? GOLD : "#f87171"} sub={"Expectancy: " + ((stats.expectancy || 0) >= 0 ? "+" : "") + (stats.expectancy || 0).toFixed(2) + "R"} badge={stats.profitFactor >= 1.5 ? "Excellent" : stats.profitFactor >= 1 ? "Good" : "Improve"} />
+            </div>
+
+            {/* Equity Curve — styled like screenshot with gold fill */}
+            <div style={{ background: CARD, border: "1px solid " + BORDER2, borderRadius: 16, padding: "24px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 600, color: TEXT }}>Equity Curve</div>
+                  <div style={{ fontSize: 13, color: M2, marginTop: 2 }}>Your trading performance over time</div>
+                </div>
+                {curve.length > 1 && (
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 12, color: M2 }}>Trending</span>
+                    <span style={{ color: curve[curve.length-1]?.r >= 0 ? "#4ade80" : "#f87171", fontSize: 13, fontWeight: 600 }}>{curve[curve.length-1]?.r >= 0 ? "▲ up" : "▼ down"}</span>
+                    <span style={{ fontSize: 13, color: GOLD, fontFamily: FONT_MONO, fontWeight: 700, marginLeft: 8 }}>{(stats.totalR || 0) >= 0 ? "+" : ""}{(stats.totalR || 0).toFixed(2)}R</span>
+                    <span style={{ fontSize: 12, color: M2 }}>· {stats.closed} trades</span>
+                  </div>
+                )}
+              </div>
+              {curve.length < 2 ? (
+                <div style={{ color: M2, textAlign: "center", padding: "48px 0", fontSize: 14 }}>Log 2+ closed trades to see your equity curve</div>
+              ) : (
+                <ResponsiveContainer width="100%" height={220}>
+                  <LineChart data={curve} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+                    <defs>
+                      <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={GOLD} stopOpacity={0.3} />
+                        <stop offset="95%" stopColor={GOLD} stopOpacity={0.02} />
+                      </linearGradient>
+                    </defs>
+                    <XAxis dataKey="i" stroke="transparent" tick={{ fill: M2, fontSize: 11 }} />
+                    <YAxis stroke="transparent" tick={{ fill: M2, fontSize: 11 }} />
                     <Tooltip content={<ChartTip />} />
-                    <ReferenceLine y={0} stroke={BORDER} strokeDasharray="4 4" />
-                    <Line type="monotone" dataKey="r" name="R" stroke={G} strokeWidth={2} dot={false} />
+                    <ReferenceLine y={0} stroke={BORDER2} strokeDasharray="4 4" />
+                    <Line type="monotone" dataKey="r" name="R" stroke={GOLD} strokeWidth={2.5} dot={false} fill="url(#goldGrad)" />
                   </LineChart>
                 </ResponsiveContainer>
               )}
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              <div style={{ background: CARD, border: "1px solid " + BORDER, borderRadius: 8, padding: 13 }}>
-                <SH>R by Day</SH>
-                <ResponsiveContainer width="100%" height={115}>
-                  <BarChart data={dayData} barCategoryGap="30%">
-                    <XAxis dataKey="key" stroke={BORDER} tick={{ fill: M2, fontSize: 16 }} />
-                    <YAxis stroke={BORDER} tick={{ fill: M2, fontSize: 16 }} />
+
+            <div className="chart-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div style={{ background: CARD, border: "1px solid " + BORDER2, borderRadius: 16, padding: "24px" }}>
+                <SH>P&L by Day</SH>
+                <ResponsiveContainer width="100%" height={160}>
+                  <BarChart data={dayData} barCategoryGap="35%">
+                    <XAxis dataKey="key" stroke="transparent" tick={{ fill: M2, fontSize: 12 }} />
+                    <YAxis stroke="transparent" tick={{ fill: M2, fontSize: 11 }} />
                     <Tooltip content={<ChartTip />} />
-                    <ReferenceLine y={0} stroke={BORDER} />
-                    <Bar dataKey="r" name="R" radius={[3,3,0,0]}>
-                      {dayData.map((d, i) => <Cell key={i} fill={d.r >= 0 ? G : R} fillOpacity={0.85} />)}
+                    <ReferenceLine y={0} stroke={BORDER2} />
+                    <Bar dataKey="r" name="R" radius={[4,4,0,0]}>
+                      {dayData.map((d, i) => <Cell key={i} fill={d.r >= 0 ? GOLD : R} fillOpacity={0.9} />)}
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-              <div style={{ background: CARD, border: "1px solid " + BORDER, borderRadius: 8, padding: 13 }}>
-                <SH>Session Win Rate</SH>
-                <div style={{ display: "flex", flexDirection: "column", gap: 9, marginTop: 4 }}>
+              <div style={{ background: CARD, border: "1px solid " + BORDER2, borderRadius: 16, padding: "24px" }}>
+                <SH>Session Performance</SH>
+                <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 8 }}>
                   {sessionData.map(s => (
-                    <div key={s.key} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <span style={{ width: 112, fontSize: 16, color: TEXT, flexShrink: 0 }}>{s.key}</span>
+                    <div key={s.key} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <span style={{ width: 120, fontSize: 13, color: TEXT2, fontWeight: 500 }}>{s.key}</span>
                       <WBar wr={s.winRate} total={s.total} />
-                      <span style={{ marginLeft: "auto", fontSize: 16, color: M2 }}>{s.total}T</span>
+                      <span style={{ marginLeft: 4, fontSize: 12, color: M2, fontFamily: FONT_MONO, minWidth: 24, textAlign: "right" }}>{s.total}</span>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
-            <div style={{ background: CARD, border: "1px solid " + BORDER, borderRadius: 8, overflow: "hidden" }}>
-              <div style={{ padding: "9px 12px", borderBottom: "1px solid " + BORDER }}><SH>Recent Trades</SH></div>
+
+            {/* Recent trades table — matching screenshot */}
+            <div style={{ background: CARD, border: "1px solid " + BORDER2, borderRadius: 16, overflow: "hidden" }}>
+              <div style={{ padding: "20px 24px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 600, color: TEXT }}>Recent Trades</div>
+                  <div style={{ fontSize: 13, color: M2, marginTop: 2 }}>{stats.total} trades recorded</div>
+                </div>
+              </div>
               {trades.length === 0 ? (
-                <div style={{ padding: 26, textAlign: "center", color: M2, fontSize: 16 }}>No trades yet — hit <span style={{ color: G }}>+ LOG</span> to start</div>
+                <div style={{ padding: "48px 0", textAlign: "center", color: M2, fontSize: 14 }}>No trades yet — click <span style={{ color: GOLD, fontWeight: 600 }}>+ Log Trade</span> to start</div>
               ) : (
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                  <thead><tr>{["Date","Pair","Dir","Setup","Template","Emotion","RR","Result","Score"].map(h => <th key={h} style={thS}>{h}</th>)}</tr></thead>
+                  <thead><tr>
+                    {["Date","Symbol","Market","Side","Setup","Entry","RR","P&L","Score"].map(h => <th key={h} style={thS}>{h}</th>)}
+                  </tr></thead>
                   <tbody>
-                    {[...trades].sort((a, b) => (a.date + (a.time || "")) < (b.date + (b.time || "")) ? 1 : -1).slice(0, 7).map(t => (
-                      <tr key={t.id} onClick={() => setDetail(t)} style={{ cursor: "pointer" }}
-                        onMouseEnter={e => e.currentTarget.style.background = "#ffffff06"}
-                        onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
-                        <td style={tdS}>{t.date} <span style={{ color: M2 }}>{t.time}</span></td>
-                        <td style={{ ...tdS, color: A, fontWeight: 700 }}>{t.pair}</td>
-                        <td style={{ ...tdS, color: t.direction === "Long" ? G : R, fontSize: 16 }}>{t.direction === "Long" ? "▲" : "▼"} {t.direction[0]}</td>
-                        <td style={{ ...tdS, color: M2, fontSize: 16 }}>{t.setup}</td>
-                        <td style={tdS}>{t.weeklyTemplate ? <TplBadge id={t.weeklyTemplate} /> : <span style={{ color: M2, fontSize: 16 }}>—</span>}</td>
-                        <td style={tdS}>{t.emotion ? <EmoBadge emotion={t.emotion} /> : <span style={{ color: M2, fontSize: 16 }}>—</span>}</td>
+                    {[...trades].sort((a, b) => (a.date + (a.time || "")) < (b.date + (b.time || "")) ? 1 : -1).slice(0, 8).map(t => (
+                      <tr key={t.id} onClick={() => setDetail(t)} style={{ cursor: "pointer", transition: "background 0.1s" }}>
+                        <td style={tdS}><span style={{ color: TEXT2, fontSize: 13 }}>{t.date}</span></td>
+                        <td style={tdS}><span style={{ fontWeight: 700, fontSize: 15, fontFamily: FONT_MONO }}>{t.pair}</span></td>
+                        <td style={tdS}><MarketBadge pair={t.pair} /></td>
+                        <td style={tdS}><DirBadge dir={t.direction} /></td>
+                        <td style={{ ...tdS, color: M2, fontSize: 13 }}>{t.setup}</td>
+                        <td style={{ ...tdS, fontFamily: FONT_MONO, fontSize: 13, color: TEXT2 }}>{t.entryPrice || "—"}</td>
                         <td style={tdS}><Rr v={t.rrActual} /></td>
                         <td style={tdS}><Pill result={t.result} /></td>
-                        <td style={tdS}>{t.reviewLoading ? <span style={{ color: M2, fontSize: 16 }}>⏳</span> : t.review ? <span style={{ color: t.review.score >= 7 ? G : t.review.score >= 5 ? A : R, fontWeight: 700 }}>{t.review.score}/10</span> : <span style={{ color: M2 }}>—</span>}</td>
+                        <td style={tdS}>{t.reviewLoading ? <span style={{ color: M2, fontSize: 12 }}>…</span> : t.review ? <span style={{ color: t.review.score >= 7 ? "#4ade80" : t.review.score >= 5 ? GOLD : "#f87171", fontFamily: FONT_MONO, fontWeight: 700 }}>{t.review.score}/10</span> : <span style={{ color: M2 }}>—</span>}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -1542,7 +1728,6 @@ function TradingJournal() {
             </div>
           </div>
         )}
-
         {/* LOG */}
         {tab === "log" && (
           <CalendarLog trades={trades} onSelectTrade={t => setDetail(t)} onNewTrade={date => { setModal({ ...{ date: "", time: "", pair: "EURUSD", direction: "Long", session: "London", setup: "Fair Value Gap (FVG)", weeklyTemplate: "", entryPrice: "", riskR: 1, rrPlanned: 2, rrActual: "", result: "Win", notes: "", emotion: "", discipline: 0, checklist: {}, mindset: "" }, date }); }} />
