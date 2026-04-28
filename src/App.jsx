@@ -2,9 +2,9 @@ import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from "recharts";
 
 // ─── FONTS ────────────────────────────────────────────────────────────────────
-const FONT_URL = "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap";
-const FONT_BODY = "'Inter', sans-serif";
-const FONT_MONO = "'JetBrains Mono', monospace";
+const FONT_URL = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap";
+const FONT_BODY = "'DM Sans', sans-serif";
+const FONT_MONO = "'DM Mono', monospace";
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
 const PAIRS = ["EURUSD","GBPUSD","USDJPY","USDCHF","AUDUSD","NZDUSD","USDCAD","EURGBP","EURJPY","GBPJPY","XAUUSD","GBPCHF","EURCAD","AUDCAD","Other"];
@@ -34,18 +34,21 @@ const TEMPLATES = [
 ];
 
 // ─── THEME ────────────────────────────────────────────────────────────────────
-const G = "#10b981";       // emerald green — wins, positive
-const R = "#f43f5e";       // rose red — losses, negative
-const A = "#f59e0b";       // amber — neutral, warnings
-const BG = "#0b0f19";      // deep navy-black background
-const CARD = "#111827";    // dark navy card
-const CARD2 = "#1a2235";   // slightly lighter card
-const BORDER = "#1f2d45";  // navy border
-const TEXT = "#e2e8f0";    // cool white text
-const M2 = "#64748b";      // slate muted
-const MUTED = "#334155";   // darker slate
-const ACCENT = "#6366f1";  // indigo accent
+const G = "#22c55e";       // green — wins
+const R = "#ef4444";       // red — losses
+const A = "#eab308";       // yellow — BE / neutral
+const BG = "#09090b";      // near-black zinc background
+const CARD = "#18181b";    // zinc-900 card
+const CARD2 = "#27272a";   // zinc-800 inner card
+const BORDER = "#3f3f46";  // zinc-700 border
+const TEXT = "#fafafa";    // zinc-50 white text
+const TEXT2 = "#a1a1aa";   // zinc-400 secondary text
+const M2 = "#71717a";      // zinc-500 muted
+const MUTED = "#52525b";   // zinc-600
+const ACCENT = "#818cf8";  // indigo-400
+const ACCENT2 = "#6366f1"; // indigo-500
 const BC = { Bullish: G, Bearish: R, Neutral: A };
+const SHADOW = "0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3)";
 const SUPABASE_URL = "https://yppvcrlwxgxswruaadkf.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlwcHZjcmx3eGd4c3dydWFhZGtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMzY3MjQsImV4cCI6MjA5MjgxMjcyNH0.T4Bx0iqW9Ae_hMFXrScjXtBZS8tczc8-1Lpv-SjaBRI";
 
@@ -79,34 +82,35 @@ function LoginScreen({ onLogin }) {
     else { setError(true); setTimeout(() => setError(false), 1500); }
   };
   return (
-    <div style={{ position: "fixed", inset: 0, background: BG, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 32 }}>
-      <style>{`@import url('${FONT_URL}'); *{box-sizing:border-box}`}</style>
-      {/* Logo */}
+    <div style={{ position: "fixed", inset: 0, background: BG, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 40 }}>
+      <style>{`@import url('${FONT_URL}'); *{box-sizing:border-box;margin:0;padding:0} body{font-family:${FONT_BODY};-webkit-font-smoothing:antialiased;background:${BG}}`}</style>
       <div style={{ textAlign: "center" }}>
-        <div style={{ fontSize: 36, fontWeight: 800, background: "linear-gradient(135deg, #a5b4fc, #34d399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: 8, fontFamily: FONT_BODY }}>TradeLog</div>
-        <div style={{ fontSize: 16, color: M2, fontFamily: FONT_BODY }}>ICT Trading Journal</div>
+        <div style={{ fontSize: 44, fontWeight: 700, background: "linear-gradient(135deg, #818cf8, #34d399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "-0.04em", marginBottom: 12, fontFamily: FONT_BODY }}>TradeLog</div>
+        <div style={{ fontSize: 15, color: M2, fontWeight: 400 }}>Your ICT Trading Journal</div>
       </div>
-      {/* Card */}
-      <div style={{ background: CARD, border: "1px solid " + BORDER, borderRadius: 16, padding: "32px 36px", width: "100%", maxWidth: 360, display: "flex", flexDirection: "column", gap: 16 }}>
-        <div style={{ fontSize: 17, fontWeight: 600, color: TEXT, fontFamily: FONT_BODY, marginBottom: 4 }}>Welcome back 👋</div>
+      <div style={{ background: CARD, border: "1px solid " + BORDER, borderRadius: 20, padding: "36px 40px", width: "100%", maxWidth: 400, display: "flex", flexDirection: "column", gap: 20, boxShadow: "0 24px 64px rgba(0,0,0,0.6)" }}>
+        <div>
+          <div style={{ fontSize: 20, fontWeight: 600, color: TEXT, marginBottom: 4 }}>Welcome back</div>
+          <div style={{ fontSize: 14, color: M2 }}>Enter your password to continue</div>
+        </div>
         <div style={{ position: "relative" }}>
           <input
             type={show ? "text" : "password"}
             value={pw}
             onChange={e => setPw(e.target.value)}
             onKeyDown={e => e.key === "Enter" && submit()}
-            placeholder="Enter your password"
+            placeholder="Password"
             autoFocus
-            style={{ width: "100%", padding: "12px 44px 12px 14px", borderRadius: 8, border: "1px solid " + (error ? R : pw ? ACCENT : BORDER), background: CARD2, color: TEXT, fontSize: 16, fontFamily: FONT_BODY, outline: "none", transition: "border-color .2s" }}
+            style={{ width: "100%", padding: "14px 48px 14px 16px", borderRadius: 10, border: "1.5px solid " + (error ? "#ef4444" : pw ? ACCENT : BORDER), background: CARD2, color: TEXT, fontSize: 16, outline: "none", transition: "border-color 0.2s" }}
           />
-          <button onClick={() => setShow(s => !s)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: M2, cursor: "pointer", fontSize: 16, padding: 0 }}>{show ? "🙈" : "👁"}</button>
+          <button onClick={() => setShow(s => !s)} style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: M2, cursor: "pointer", fontSize: 18, padding: 0 }}>{show ? "🙈" : "👁"}</button>
         </div>
-        {error && <div style={{ fontSize: 16, color: R, fontFamily: FONT_BODY, marginTop: -8 }}>Incorrect password. Try again.</div>}
-        <button onClick={submit} style={{ padding: "12px", borderRadius: 8, border: "none", background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff", fontSize: 16, fontWeight: 600, cursor: "pointer", fontFamily: FONT_BODY, boxShadow: "0 4px 16px #6366f140" }}>
-          Enter Journal
+        {error && <div style={{ fontSize: 13, color: "#f87171", fontWeight: 500, marginTop: -10 }}>Incorrect password. Try again.</div>}
+        <button onClick={submit} style={{ padding: "14px", borderRadius: 10, border: "none", background: "linear-gradient(135deg, " + ACCENT2 + ", #7c3aed)", color: "#fff", fontSize: 15, fontWeight: 600, cursor: "pointer", boxShadow: "0 8px 24px " + ACCENT2 + "50", letterSpacing: "0.02em" }}>
+          Enter Journal →
         </button>
       </div>
-      <div style={{ fontSize: 17, color: MUTED, fontFamily: FONT_BODY }}>Your trades are end-to-end encrypted in Supabase.</div>
+      <div style={{ fontSize: 12, color: MUTED, letterSpacing: "0.02em" }}>Data stored securely in Supabase</div>
     </div>
   );
 }
@@ -354,58 +358,74 @@ function TemplatePicker({ value, onChange, direction }) {
 
 // ─── SMALL COMPONENTS ────────────────────────────────────────────────────────
 function Pill({ result }) {
-  const colors = { Win: ["#10b98118","#10b981","#d1fae5"], Loss: ["#f43f5e18","#f43f5e","#ffe4e6"], BE: ["#f59e0b18","#f59e0b","#fef3c7"], Open: [MUTED+"40",M2,"#94a3b8"] };
-  const [bg, border, col] = colors[result] || colors.Open;
-  return <span style={{ background: bg, color: col, border: "1px solid " + border + "50", padding: "2px 9px", borderRadius: 20, fontSize: 16, fontWeight: 600, letterSpacing: 0.3 }}>{result}</span>;
+  const colors = {
+    Win:  { bg: "#16a34a15", border: "#22c55e40", text: "#4ade80" },
+    Loss: { bg: "#dc262615", border: "#ef444440", text: "#f87171" },
+    BE:   { bg: "#ca8a0415", border: "#eab30840", text: "#facc15" },
+    Open: { bg: "#3f3f4620", border: "#52525b40", text: "#a1a1aa" }
+  };
+  const c = colors[result] || colors.Open;
+  return (
+    <span style={{ background: c.bg, color: c.text, border: "1px solid " + c.border, padding: "3px 10px", borderRadius: 6, fontSize: 12, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase" }}>
+      {result}
+    </span>
+  );
 }
 
 function Rr({ v }) {
   const n = parseFloat(v);
-  const c = isNaN(n) ? M2 : n > 0 ? G : n < 0 ? R : A;
-  return <span style={{ color: c, fontFamily: FONT_MONO, fontWeight: 600 }}>{isNaN(n) ? "—" : (n > 0 ? "+" : "") + n.toFixed(2) + "R"}</span>;
+  const c = isNaN(n) ? M2 : n > 0 ? "#4ade80" : n < 0 ? "#f87171" : "#facc15";
+  return <span style={{ color: c, fontFamily: FONT_MONO, fontWeight: 600, fontSize: 14 }}>{isNaN(n) ? "—" : (n > 0 ? "+" : "") + n.toFixed(2) + "R"}</span>;
 }
 
 function StatBox({ label, value, color, sub }) {
   return (
-    <div style={{ background: CARD, border: "1px solid " + BORDER, borderLeft: "3px solid " + (color || ACCENT), borderRadius: 8, padding: "12px 16px", flex: "1 1 100px" }}>
-      <div style={{ fontSize: 16, color: M2, fontWeight: 500, marginBottom: 5, letterSpacing: 0.5 }}>{label}</div>
-      <div style={{ fontSize: 26, fontWeight: 800, color: color || TEXT, fontFamily: FONT_MONO, lineHeight: 1 }}>{value}</div>
-      {sub && <div style={{ fontSize: 16, color: M2, marginTop: 4, fontFamily: FONT_MONO }}>{sub}</div>}
+    <div style={{ background: CARD, border: "1px solid " + BORDER, borderRadius: 14, padding: "20px 22px", flex: "1 1 130px", boxShadow: "0 4px 24px rgba(0,0,0,0.3)", display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ fontSize: 11, fontWeight: 600, color: M2, textTransform: "uppercase", letterSpacing: "0.1em" }}>{label}</div>
+      <div style={{ fontSize: 30, fontWeight: 700, color: color || TEXT, fontFamily: FONT_MONO, lineHeight: 1, letterSpacing: "-0.03em" }}>{value}</div>
+      {sub && <div style={{ fontSize: 12, color: M2, fontFamily: FONT_MONO, marginTop: 2 }}>{sub}</div>}
     </div>
   );
 }
 
 function WBar({ wr, total }) {
+  const col = wr >= 50 ? "#4ade80" : R;
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-      <div style={{ width: 60, height: 3, background: BORDER, borderRadius: 2 }}>
-        <div style={{ width: wr + "%", height: "100%", background: wr >= 50 ? G : R, borderRadius: 2 }} />
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ width: 80, height: 4, background: CARD2, borderRadius: 4, overflow: "hidden" }}>
+        <div style={{ width: wr + "%", height: "100%", background: col, borderRadius: 4, transition: "width 0.5s ease" }} />
       </div>
-      <span style={{ fontSize: 16, color: wr >= 50 ? G : total ? R : M2, fontFamily: FONT_MONO }}>{total ? wr + "%" : "—"}</span>
+      <span style={{ fontSize: 13, fontWeight: 600, color: col, fontFamily: FONT_MONO, minWidth: 36 }}>{total ? wr + "%" : "—"}</span>
     </div>
   );
 }
 
 function SH({ children, color }) {
-  return <div style={{ fontSize: 17, color: color || M2, fontWeight: 600, marginBottom: 12, letterSpacing: 0.3 }}>{children}</div>;
+  return (
+    <div style={{ fontSize: 11, fontWeight: 700, color: color || M2, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16 }}>
+      {children}
+    </div>
+  );
 }
 
 function ChartTip({ active, payload, label }) {
   if (!active || !payload || !payload.length) return null;
   return (
-    <div style={{ background: "#1a1d28", border: "1px solid " + BORDER, borderRadius: 5, padding: "6px 10px" }}>
-      <div style={{ color: M2, fontSize: 16, marginBottom: 2 }}>{label}</div>
-      {payload.map((p, i) => <div key={i} style={{ color: p.color || TEXT, fontSize: 17, fontFamily: FONT_MONO }}>{p.name}: {typeof p.value === "number" ? p.value.toFixed(2) : p.value}</div>)}
+    <div style={{ background: CARD2, border: "1px solid " + BORDER, borderRadius: 8, padding: "10px 14px", boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}>
+      <div style={{ color: M2, fontSize: 12, marginBottom: 4, fontWeight: 500 }}>{label}</div>
+      {payload.map((p, i) => (
+        <div key={i} style={{ color: p.color || TEXT, fontSize: 13, fontFamily: FONT_MONO, fontWeight: 600 }}>{p.name}: {typeof p.value === "number" ? p.value.toFixed(2) : p.value}</div>
+      ))}
     </div>
   );
 }
 
 function Stars({ value, onChange }) {
   return (
-    <div style={{ display: "flex", gap: 3 }}>
+    <div style={{ display: "flex", gap: 4 }}>
       {[1, 2, 3, 4, 5].map(n => (
         <span key={n} onClick={() => onChange && onChange(n)}
-          style={{ fontSize: 17, cursor: onChange ? "pointer" : "default", color: n <= (value || 0) ? A : MUTED }}>★</span>
+          style={{ fontSize: 20, cursor: onChange ? "pointer" : "default", color: n <= (value || 0) ? "#facc15" : MUTED, transition: "color 0.15s" }}>★</span>
       ))}
     </div>
   );
@@ -1365,57 +1385,95 @@ function TradingJournal() {
 
   const closedCount = trades.filter(t => t.result !== "Open").length;
 
-  const navStyle = t => ({ padding: "6px 12px", borderRadius: 6, border: "1px solid " + (tab === t ? ACCENT : BORDER), background: tab === t ? ACCENT + "20" : "transparent", color: tab === t ? "#a5b4fc" : M2, cursor: "pointer", fontFamily: FONT_BODY, fontSize: 17, fontWeight: tab === t ? 600 : 400 });
-  const thS = { padding: "7px 9px", fontSize: 16, color: M2, textTransform: "uppercase", letterSpacing: 1.5, textAlign: "left", fontFamily: FONT_MONO, borderBottom: "1px solid " + BORDER, whiteSpace: "nowrap" };
-  const tdS = { padding: "6px 9px", fontSize: 16, color: TEXT, fontFamily: FONT_MONO, borderBottom: "1px solid " + BORDER + "10" };
+  const navStyle = t => ({
+    padding: "7px 16px",
+    borderRadius: 8,
+    border: "none",
+    background: tab === t ? CARD2 : "transparent",
+    color: tab === t ? TEXT : M2,
+    cursor: "pointer",
+    fontFamily: FONT_BODY,
+    fontSize: 14,
+    fontWeight: tab === t ? 600 : 400,
+    transition: "all 0.15s",
+    textTransform: "capitalize"
+  });
+  const thS = { padding: "12px 16px", fontSize: 11, fontWeight: 700, color: M2, textTransform: "uppercase", letterSpacing: "0.08em", textAlign: "left", borderBottom: "1px solid " + BORDER, whiteSpace: "nowrap" };
+  const tdS = { padding: "14px 16px", fontSize: 14, color: TEXT, borderBottom: "1px solid " + BORDER + "60", verticalAlign: "middle" };
 
   return (
     <div style={{ background: BG, minHeight: "100vh", color: TEXT, fontFamily: FONT_BODY }}>
-      <style>{`@import url('${FONT_URL}'); html,body,#root{margin:0;padding:0;width:100%;min-height:100vh;background:${BG};font-size:16px} @keyframes spin{to{transform:rotate(360deg)}} @keyframes slideIn{from{transform:translateX(100%)}to{transform:translateX(0)}} @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}} *{box-sizing:border-box;margin:0;padding:0} ::-webkit-scrollbar{width:4px;height:4px} ::-webkit-scrollbar-thumb{background:${MUTED};border-radius:2px} button,input,select,textarea{font-family:${FONT_BODY};font-size:15px}`}</style>
+      <style>{`
+        @import url('${FONT_URL}');
+        html, body, #root { margin:0; padding:0; width:100%; min-height:100vh; background:${BG}; -webkit-font-smoothing:antialiased; }
+        * { box-sizing:border-box; }
+        body { font-family:${FONT_BODY}; color:${TEXT}; font-size:15px; }
+        button, input, select, textarea { font-family:${FONT_BODY}; }
+        ::-webkit-scrollbar { width:5px; height:5px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:${MUTED}; border-radius:4px; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        @keyframes slideIn { from { transform:translateX(100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+      `}</style>
+
       {!loaded && (
-        <div style={{ position: "fixed", inset: 0, background: BG, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20, zIndex: 9999 }}>
-          <span style={{ fontSize: 26, fontWeight: 800, background: "linear-gradient(135deg, #a5b4fc, #34d399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>TradeLog</span>
-          <div style={{ width: 32, height: 32, border: "3px solid " + MUTED, borderTopColor: ACCENT, borderRadius: "50%", animation: "spin 1s linear infinite" }} />
-          <span style={{ fontSize: 16, color: M2 }}>Loading your trades…</span>
+        <div style={{ position: "fixed", inset: 0, background: BG, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24, zIndex: 9999 }}>
+          <div style={{ fontSize: 32, fontWeight: 700, background: "linear-gradient(135deg, #818cf8, #34d399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "-0.03em" }}>TradeLog</div>
+          <div style={{ width: 36, height: 36, border: "3px solid " + MUTED, borderTopColor: ACCENT, borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+          <span style={{ fontSize: 14, color: M2, letterSpacing: "0.02em" }}>Loading your trades…</span>
         </div>
       )}
 
       {/* NAV */}
-      <div style={{ borderBottom: "1px solid " + BORDER, padding: "9px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, flexWrap: "wrap", position: "sticky", top: 0, background: BG, zIndex: 50 }}>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
-          <span style={{ fontSize: 16, fontWeight: 800, background: "linear-gradient(135deg, #a5b4fc, #34d399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>TradeLog</span>
-          <span style={{ fontSize: 16, color: M2, fontWeight: 500 }}>ICT · Forex</span>
+      <div style={{ borderBottom: "1px solid " + BORDER, padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, position: "sticky", top: 0, background: BG + "ee", backdropFilter: "blur(12px)", zIndex: 50, height: 60 }}>
+        {/* Logo */}
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ fontSize: 20, fontWeight: 700, background: "linear-gradient(135deg, #818cf8, #34d399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "-0.02em" }}>TradeLog</div>
+          <div style={{ height: 20, width: 1, background: BORDER }} />
+          <span style={{ fontSize: 13, color: M2, fontWeight: 400 }}>ICT · Forex</span>
+          {stats.total > 0 && (
+            <span style={{ fontSize: 13, padding: "3px 10px", borderRadius: 20, background: (stats.totalR || 0) >= 0 ? G + "15" : R + "15", color: (stats.totalR || 0) >= 0 ? "#4ade80" : "#f87171", fontFamily: FONT_MONO, fontWeight: 600, border: "1px solid " + ((stats.totalR || 0) >= 0 ? G + "30" : R + "30") }}>
+              {(stats.totalR || 0) >= 0 ? "+" : ""}{(stats.totalR || 0).toFixed(2)}R
+            </span>
+          )}
           {loaded && (
-            <span style={{ fontSize: 16, display: "flex", alignItems: "center", gap: 4, color: syncError ? R : syncing ? A : G, fontFamily: FONT_MONO }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: syncError ? R : syncing ? A : G, display: "inline-block", animation: syncing ? "pulse 1s infinite" : "none" }} />
+            <span style={{ fontSize: 12, display: "flex", alignItems: "center", gap: 5, color: syncError ? "#f87171" : syncing ? "#facc15" : "#4ade80" }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "currentColor", display: "inline-block", animation: syncing ? "pulse 1.2s infinite" : "none" }} />
               {syncError ? "Sync error" : syncing ? "Saving…" : "Saved"}
             </span>
           )}
-          {stats.total > 0 && <span style={{ fontSize: 16, padding: "2px 6px", borderRadius: 10, background: (stats.totalR || 0) >= 0 ? G + "20" : R + "20", color: (stats.totalR || 0) >= 0 ? G : R }}>{(stats.totalR || 0) >= 0 ? "+" : ""}{(stats.totalR || 0).toFixed(2)}R</span>}
         </div>
-        <div style={{ display: "flex", gap: 4, alignItems: "center", flexWrap: "wrap" }}>
-          {["dashboard","log","psychology","coach","analytics"].map(t => <button key={t} onClick={() => setTab(t)} style={navStyle(t)}>{t}</button>)}
-          <button onClick={() => setModal("new")} style={{ padding: "6px 14px", borderRadius: 6, border: "none", background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff", cursor: "pointer", fontFamily: FONT_BODY, fontSize: 17, fontWeight: 700, boxShadow: "0 2px 12px #6366f140" }}>+ Log Trade</button>
-          <button onClick={() => { localStorage.removeItem("tradelog_auth"); window.location.reload(); }} style={{ padding: "6px 10px", borderRadius: 6, border: "1px solid " + BORDER, background: "transparent", color: M2, cursor: "pointer", fontFamily: FONT_BODY, fontSize: 17 }} title="Logout">🔒</button>
+        {/* Nav links */}
+        <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+          {["dashboard","log","psychology","coach","analytics"].map(t => (
+            <button key={t} onClick={() => setTab(t)} style={navStyle(t)}>{t.charAt(0).toUpperCase() + t.slice(1)}</button>
+          ))}
+        </div>
+        {/* Actions */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <button onClick={() => setModal("new")} style={{ padding: "8px 18px", borderRadius: 8, border: "none", background: "linear-gradient(135deg, " + ACCENT2 + ", #7c3aed)", color: "#fff", cursor: "pointer", fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, boxShadow: "0 0 20px " + ACCENT2 + "40", letterSpacing: "0.01em" }}>+ Log Trade</button>
+          <button onClick={() => { localStorage.removeItem("tradelog_auth"); window.location.reload(); }} style={{ width: 36, height: 36, borderRadius: 8, border: "1px solid " + BORDER, background: "transparent", color: M2, cursor: "pointer", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center" }} title="Logout">🔒</button>
         </div>
       </div>
 
-      <div style={{ padding: "13px 16px", maxWidth: 1020, margin: "0 auto" }}>
+      <div style={{ padding: "28px 24px", maxWidth: 1200, margin: "0 auto" }}>
 
         {/* DASHBOARD */}
         {tab === "dashboard" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
-            <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
-              <StatBox label="Trades" value={stats.total || 0} />
-              <StatBox label="Win Rate" value={stats.winRate ? stats.winRate.toFixed(1) + "%" : "—"} color={stats.winRate >= 50 ? G : R} sub={stats.wins + "W · " + stats.losses + "L · " + stats.be + "BE"} />
-              <StatBox label="Avg RR" value={stats.avgR ? (stats.avgR > 0 ? "+" : "") + stats.avgR.toFixed(2) + "R" : "—"} color={stats.avgR > 0 ? G : stats.avgR < 0 ? R : M2} />
-              <StatBox label="Total R" value={stats.totalR ? (stats.totalR > 0 ? "+" : "") + stats.totalR.toFixed(2) + "R" : "—"} color={(stats.totalR || 0) >= 0 ? G : R} />
-              <StatBox label="Profit Factor" value={stats.profitFactor ? (isFinite(stats.profitFactor) ? stats.profitFactor.toFixed(2) : "∞") : "—"} color={stats.profitFactor >= 1.5 ? G : stats.profitFactor >= 1 ? A : R} />
-              <StatBox label="Expectancy" value={stats.expectancy ? (stats.expectancy > 0 ? "+" : "") + stats.expectancy.toFixed(2) + "R" : "—"} color={(stats.expectancy || 0) >= 0 ? G : R} />
+          <div style={{ display: "flex", flexDirection: "column", gap: 24, animation: "fadeIn 0.3s ease" }}>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              <StatBox label="Total Trades" value={stats.total || 0} />
+              <StatBox label="Win Rate" value={stats.winRate ? stats.winRate.toFixed(1) + "%" : "—"} color={stats.winRate >= 50 ? "#4ade80" : "#f87171"} sub={stats.wins + "W · " + stats.losses + "L · " + stats.be + "BE"} />
+              <StatBox label="Avg RR" value={stats.avgR ? (stats.avgR > 0 ? "+" : "") + stats.avgR.toFixed(2) + "R" : "—"} color={stats.avgR > 0 ? "#4ade80" : stats.avgR < 0 ? "#f87171" : M2} />
+              <StatBox label="Total R" value={stats.totalR ? (stats.totalR > 0 ? "+" : "") + stats.totalR.toFixed(2) + "R" : "—"} color={(stats.totalR || 0) >= 0 ? "#4ade80" : "#f87171"} />
+              <StatBox label="Profit Factor" value={stats.profitFactor ? (isFinite(stats.profitFactor) ? stats.profitFactor.toFixed(2) : "∞") : "—"} color={stats.profitFactor >= 1.5 ? "#4ade80" : stats.profitFactor >= 1 ? "#facc15" : "#f87171"} />
+              <StatBox label="Expectancy" value={stats.expectancy ? (stats.expectancy > 0 ? "+" : "") + stats.expectancy.toFixed(2) + "R" : "—"} color={(stats.expectancy || 0) >= 0 ? "#4ade80" : "#f87171"} />
             </div>
-            <div style={{ background: CARD, border: "1px solid " + BORDER, borderRadius: 8, padding: 13 }}>
-              <SH>Equity Curve (R)</SH>
-              {curve.length < 2 ? <div style={{ color: M2, textAlign: "center", padding: 22, fontSize: 16 }}>Log 2+ closed trades</div> : (
+            <div style={{ background: CARD, border: "1px solid " + BORDER, borderRadius: 16, padding: "24px 24px 16px", boxShadow: "0 4px 24px rgba(0,0,0,0.3)" }}>
+              <SH>Equity Curve</SH>
+              {curve.length < 2 ? <div style={{ color: M2, textAlign: "center", padding: "32px 0", fontSize: 14 }}>Log 2+ closed trades to see your curve</div> : (
                 <ResponsiveContainer width="100%" height={145}>
                   <LineChart data={curve}>
                     <XAxis dataKey="i" stroke={BORDER} tick={{ fill: M2, fontSize: 16 }} />
