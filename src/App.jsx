@@ -53,7 +53,7 @@ const SUPABASE_URL = "https://yppvcrlwxgxswruaadkf.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlwcHZjcmx3eGd4c3dydWFhZGtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMzY3MjQsImV4cCI6MjA5MjgxMjcyNH0.T4Bx0iqW9Ae_hMFXrScjXtBZS8tczc8-1Lpv-SjaBRI";
 
 // ── PASSWORD — change this to whatever you want ───────────────────────────────
-const APP_PASSWORD = "eloy2025";
+const APP_PASSWORD = "Tradingjournal@2026";
 
 // ── DB helpers ────────────────────────────────────────────────────────────────
 function getUserId() {
