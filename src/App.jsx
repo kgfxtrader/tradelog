@@ -58,7 +58,7 @@ const SUPABASE_URL = "https://yppvcrlwxgxswruaadkf.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlwcHZjcmx3eGd4c3dydWFhZGtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMzY3MjQsImV4cCI6MjA5MjgxMjcyNH0.T4Bx0iqW9Ae_hMFXrScjXtBZS8tczc8-1Lpv-SjaBRI";
 
 // ── PASSWORD — change this to whatever you want ───────────────────────────────
-const APP_PASSWORD = "eloy2025";
+const APP_PASSWORD = "Tradingjournal@2026";
 
 // ── DB helpers ────────────────────────────────────────────────────────────────
 function getUserId() {
@@ -1610,7 +1610,7 @@ function TradingJournal() {
             {/* Greeting — like screenshot */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
               <div>
-                <h1 style={{ fontSize: 28, fontWeight: 700, color: TEXT, margin: 0, letterSpacing: "-0.02em" }}>{greeting}, Trader!</h1>
+                <h1 style={{ fontSize: 28, fontWeight: 700, color: TEXT, margin: 0, letterSpacing: "-0.02em" }}>{greeting}, KG!</h1>
                 <div style={{ fontSize: 14, color: M2, marginTop: 4 }}>{today}</div>
                 {stats.total > 0 && <div style={{ fontSize: 13, color: M2, marginTop: 6 }}>{stats.total} trades recorded · <span style={{ color: (stats.totalR || 0) >= 0 ? "#4ade80" : "#f87171", fontFamily: FONT_MONO, fontWeight: 600 }}>{(stats.totalR || 0) >= 0 ? "+" : ""}{(stats.totalR || 0).toFixed(2)}R total</span></div>}
               </div>
