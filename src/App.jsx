@@ -680,7 +680,7 @@ function TradeModal({ trade, onSave, onClose, onDelete }) {
   const isTpl = tab === "template";
 
   const Footer = () => (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 28px", borderTop: "1px solid " + BORDER, flexShrink: 0, background: CARD }}>
+    <div className="modal-footer" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 28px", borderTop: "1px solid " + BORDER, flexShrink: 0, background: CARD }}>
       <div style={{ display: "flex", gap: 8 }}>
         {trade && (
           <button onClick={() => onDelete(trade.id)} style={{ padding: "9px 16px", borderRadius: 8, border: "1px solid " + R + "40", background: "transparent", color: R, cursor: "pointer", fontSize: 13, fontWeight: 500 }}>
@@ -703,7 +703,7 @@ function TradeModal({ trade, onSave, onClose, onDelete }) {
       <div className="modal-inner" style={{ background: CARD, border: "1px solid " + BORDER2, borderRadius: "16px 16px 0 0", width: "100%", maxWidth: isTpl ? 780 : 640, maxHeight: "96vh", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 -8px 64px rgba(0,0,0,0.7)", margin: "auto" }}>
 
         {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 28px", borderBottom: "1px solid " + BORDER, flexShrink: 0 }}>
+        <div className="modal-header" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 28px", borderBottom: "1px solid " + BORDER, flexShrink: 0 }}>
           <div>
             <div style={{ fontSize: 18, fontWeight: 700, color: TEXT, letterSpacing: "-0.01em" }}>{trade ? "Edit Trade" : "Log New Trade"}</div>
             <div style={{ fontSize: 13, color: M2, marginTop: 2 }}>Fill in the details below and get an instant AI review</div>
@@ -712,7 +712,7 @@ function TradeModal({ trade, onSave, onClose, onDelete }) {
         </div>
 
         {/* Tab bar */}
-        <div style={{ display: "flex", borderBottom: "1px solid " + BORDER, flexShrink: 0, padding: "0 28px" }}>
+        <div className="modal-header" style={{ display: "flex", borderBottom: "1px solid " + BORDER, flexShrink: 0, padding: "0 28px" }}>
           {TABS.map(([id, label]) => (
             <button key={id} onClick={() => setTab(id)} style={{
               padding: "12px 16px", border: "none",
@@ -965,7 +965,7 @@ function TradeDetail({ trade, onClose, onEdit, onUpdateScreenshots }) {
             <button onClick={onClose} style={{ padding: "4px 9px", borderRadius: 5, border: "none", background: CARD, color: TEXT, cursor: "pointer", fontFamily: FONT_MONO, fontSize: 16 }}>×</button>
           </div>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 360px", flex: 1, overflow: "hidden" }}>
+        <div className="detail-panel" style={{ display: "grid", gridTemplateColumns: "1fr 360px", flex: 1, overflow: "hidden" }}>
           <div style={{ borderRight: "1px solid " + BORDER, overflow: "hidden", display: "flex", flexDirection: "column" }}>
             <TradeCharts trade={trade} onUpdateScreenshots={onUpdateScreenshots} />
           </div>
@@ -1552,7 +1552,7 @@ function TradingJournal() {
     transition: "all 0.15s",
   });
   const thS = { padding: "12px 20px", fontSize: 11, fontWeight: 700, color: M2, textTransform: "uppercase", letterSpacing: "0.08em", textAlign: "left", borderBottom: "1px solid " + BORDER2, whiteSpace: "nowrap", background: CARD };
-  const tdS = { padding: "16px 20px", fontSize: 14, color: TEXT, borderBottom: "1px solid " + BORDER, verticalAlign: "middle" };
+  const tdS = { padding: "12px 14px", fontSize: 13, color: TEXT, borderBottom: "1px solid " + BORDER, verticalAlign: "middle" };
 
   // Greeting
   const hour = new Date().getHours();
@@ -1563,13 +1563,12 @@ function TradingJournal() {
     <div style={{ background: BG, minHeight: "100vh", color: TEXT, fontFamily: FONT_BODY }}>
       <style>{`
         @import url('${FONT_URL}');
-        html, body, #root { margin:0; padding:0; width:100%; min-height:100vh; background:${BG}; -webkit-font-smoothing:antialiased; }
+        html, body, #root { margin:0; padding:0; width:100%; min-height:100vh; background:${BG}; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
         * { box-sizing:border-box; }
-        body { font-family:${FONT_BODY}; color:${TEXT}; font-size:15px; font-feature-settings:"kern" 1,"liga" 1; }
-        h1,h2,h3 { font-family:${FONT_BODY}; letter-spacing:-0.02em; }
-        button, input, select, textarea { font-family:${FONT_BODY}; }
-        .mono, [class*="mono"] { font-family:${FONT_MONO}; font-feature-settings:"tnum" 1; }
-        ::-webkit-scrollbar { width:5px; height:5px; }
+        body { font-family:${FONT_BODY}; color:${TEXT}; font-size:15px; }
+        button, input, select, textarea { font-family:${FONT_BODY}; font-size:16px; }
+        input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
+        ::-webkit-scrollbar { width:4px; height:4px; }
         ::-webkit-scrollbar-track { background:transparent; }
         ::-webkit-scrollbar-thumb { background:${MUTED}; border-radius:4px; }
         @keyframes spin { to { transform:rotate(360deg); } }
@@ -1577,39 +1576,77 @@ function TradingJournal() {
         @keyframes slideUp { from { transform:translateY(100%); opacity:0; } to { transform:translateY(0); opacity:1; } }
         @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-        tr:hover td { background: ${CARD3} !important; }
+        tr:hover td { background:${CARD3} !important; }
 
-        /* Modal — bottom sheet on mobile, centered on desktop */
+        /* ── DESKTOP ── */
         @media (min-width: 769px) {
           .modal-outer { align-items: center !important; padding: 20px !important; }
-          .modal-inner { border-radius: 16px !important; margin: auto !important; }
+          .modal-inner { border-radius: 16px !important; }
+          .nav-mobile-tabs { display: none !important; }
+          .page-pb { padding-bottom: 32px !important; }
         }
-        @media (max-width: 768px) {
-          .modal-inner { max-height: 95vh !important; border-radius: 20px 20px 0 0 !important; }
-          .modal-tabs button { font-size: 11px !important; padding: 10px 8px !important; }
-        }
+
+        /* ── TABLET / MOBILE ── */
         @media (max-width: 768px) {
           .nav-links { display: none !important; }
           .nav-mobile-tabs { display: flex !important; }
-          .stat-grid { grid-template-columns: 1fr 1fr !important; }
-          .chart-grid { grid-template-columns: 1fr !important; }
-          .modal-grid-3 { grid-template-columns: 1fr 1fr !important; }
-          .modal-grid-4 { grid-template-columns: 1fr 1fr !important; }
-          .detail-panel { grid-template-columns: 1fr !important; }
-          .detail-right { display: none !important; }
-          .detail-full { display: flex !important; flex-direction: column !important; }
-          .calendar-weekly { grid-template-columns: repeat(4, 1fr) !important; }
           .hide-mobile { display: none !important; }
-          .page-pad { padding: 16px 14px !important; }
-          .nav-pad { padding: 0 14px !important; }
-          .modal-pad { padding: 16px 18px !important; }
-          .table-scroll { overflow-x: auto !important; }
+          .nav-pad { padding: 0 16px !important; }
+          .page-pad { padding: 16px 14px !important; padding-bottom: 90px !important; }
+
+          /* Grids collapse */
+          .stat-grid { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+          .chart-grid { grid-template-columns: 1fr !important; }
+          .modal-grid-3 { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+          .modal-grid-4 { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+
+          /* Detail panel */
+          .detail-panel { grid-template-columns: 1fr !important; height: auto !important; }
+          .detail-right { display: none !important; }
+
+          /* Calendar */
+          .calendar-weekly { grid-template-columns: repeat(4, 1fr) !important; }
+          .cal-monthly-header span:nth-child(1), .cal-monthly-header span:nth-child(7) { display: none; }
+
+          /* Tables */
+          .table-wrap { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+          .table-wrap table { min-width: 600px !important; }
+
+          /* Modal bottom sheet */
+          .modal-inner { max-height: 95vh !important; border-radius: 20px 20px 0 0 !important; }
+          .modal-header { padding: 16px 20px !important; }
+          .modal-body { padding: 16px 20px !important; }
+          .modal-footer { padding: 12px 20px !important; }
+
+          /* Cards */
+          .card-pad { padding: 16px !important; }
+          .greeting-h1 { font-size: 22px !important; }
+
+          /* Stat numbers */
+          .stat-num { font-size: 22px !important; }
+
+          /* Chart heights */
+          .chart-h { height: 160px !important; }
+
+          /* Equity curve */
+          .equity-h { height: 180px !important; }
+
+          /* Option button wrap */
+          .opt-wrap { gap: 6px !important; }
+          .opt-btn { padding: 7px 10px !important; font-size: 12px !important; }
+
+          /* Setup buttons smaller on mobile */
+          .setup-btn { padding: 5px 8px !important; font-size: 11px !important; }
         }
-        @media (max-width: 480px) {
-          .stat-grid { grid-template-columns: 1fr !important; }
+
+        /* ── SMALL PHONES ── */
+        @media (max-width: 390px) {
+          .stat-grid { grid-template-columns: 1fr 1fr !important; }
           .modal-grid-3 { grid-template-columns: 1fr !important; }
-          .modal-grid-4 { grid-template-columns: 1fr 1fr !important; }
-          .calendar-weekly { grid-template-columns: repeat(3, 1fr) !important; }
+          .account-switcher { font-size: 11px !important; padding: 4px 8px !important; }
+          .nav-logo { font-size: 16px !important; }
+          .greeting-h1 { font-size: 20px !important; }
+          .stat-num { font-size: 20px !important; }
         }
       `}</style>
 
@@ -1664,7 +1701,7 @@ function TradingJournal() {
         ))}
       </div>
 
-      <div className="page-pad" style={{ padding: "32px 28px", maxWidth: 1280, margin: "0 auto", paddingBottom: 90 }}>
+      <div className="page-pad" style={{ padding: "24px 28px", maxWidth: 1280, margin: "0 auto", paddingBottom: 90 }}>
 
         {/* DASHBOARD */}
         {tab === "dashboard" && (
@@ -1672,7 +1709,7 @@ function TradingJournal() {
             {/* Greeting — like screenshot */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
               <div>
-                <h1 style={{ fontSize: 28, fontWeight: 700, color: TEXT, margin: 0, letterSpacing: "-0.02em" }}>{greeting}, Kg!</h1>
+                <h1 className="greeting-h1" style={{ fontSize: 28, fontWeight: 700, color: TEXT, margin: 0, letterSpacing: "-0.02em" }}>{greeting}, Kg!</h1>
                 <div style={{ fontSize: 14, color: M2, marginTop: 4 }}>{today}</div>
                 {stats.total > 0 && <div style={{ fontSize: 13, color: M2, marginTop: 6 }}>{stats.total} trades recorded · <span style={{ color: (stats.totalR || 0) >= 0 ? "#4ade80" : "#f87171", fontFamily: FONT_MONO, fontWeight: 600 }}>{(stats.totalR || 0) >= 0 ? "+" : ""}{(stats.totalR || 0).toFixed(2)}R total</span></div>}
               </div>
@@ -1690,17 +1727,16 @@ function TradingJournal() {
             </div>
 
             {/* Equity Curve — styled like screenshot with gold fill */}
-            <div style={{ background: CARD, border: "1px solid " + BORDER2, borderRadius: 16, padding: "24px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+            <div className="card-pad" style={{ background: CARD, border: "1px solid " + BORDER2, borderRadius: 16, padding: "24px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 8 }}>
                 <div>
-                  <div style={{ fontSize: 16, fontWeight: 600, color: TEXT }}>Equity Curve</div>
-                  <div style={{ fontSize: 13, color: M2, marginTop: 2 }}>Your trading performance over time</div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: TEXT }}>Equity Curve</div>
+                  <div style={{ fontSize: 12, color: M2, marginTop: 2 }}>Your trading performance over time</div>
                 </div>
                 {curve.length > 1 && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ fontSize: 12, color: M2 }}>Trending</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                     <span style={{ color: curve[curve.length-1]?.r >= 0 ? "#4ade80" : "#f87171", fontSize: 13, fontWeight: 600 }}>{curve[curve.length-1]?.r >= 0 ? "▲ up" : "▼ down"}</span>
-                    <span style={{ fontSize: 13, color: GOLD, fontFamily: FONT_MONO, fontWeight: 700, marginLeft: 8 }}>{(stats.totalR || 0) >= 0 ? "+" : ""}{(stats.totalR || 0).toFixed(2)}R</span>
+                    <span style={{ fontSize: 13, color: GOLD, fontFamily: FONT_MONO, fontWeight: 700 }}>{(stats.totalR || 0) >= 0 ? "+" : ""}{(stats.totalR || 0).toFixed(2)}R</span>
                     <span style={{ fontSize: 12, color: M2 }}>· {stats.closed} trades</span>
                   </div>
                 )}
@@ -1708,47 +1744,51 @@ function TradingJournal() {
               {curve.length < 2 ? (
                 <div style={{ color: M2, textAlign: "center", padding: "48px 0", fontSize: 14 }}>Log 2+ closed trades to see your equity curve</div>
               ) : (
-                <ResponsiveContainer width="100%" height={220}>
-                  <LineChart data={curve} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
-                    <defs>
-                      <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={GOLD} stopOpacity={0.3} />
-                        <stop offset="95%" stopColor={GOLD} stopOpacity={0.02} />
-                      </linearGradient>
-                    </defs>
-                    <XAxis dataKey="i" stroke="transparent" tick={{ fill: M2, fontSize: 11 }} />
-                    <YAxis stroke="transparent" tick={{ fill: M2, fontSize: 11 }} />
-                    <Tooltip content={<ChartTip />} />
-                    <ReferenceLine y={0} stroke={BORDER2} strokeDasharray="4 4" />
-                    <Line type="monotone" dataKey="r" name="R" stroke={GOLD} strokeWidth={2.5} dot={false} fill="url(#goldGrad)" />
-                  </LineChart>
-                </ResponsiveContainer>
+                <div className="equity-h" style={{ height: 220 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={curve} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+                      <defs>
+                        <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={GOLD} stopOpacity={0.3} />
+                          <stop offset="95%" stopColor={GOLD} stopOpacity={0.02} />
+                        </linearGradient>
+                      </defs>
+                      <XAxis dataKey="i" stroke="transparent" tick={{ fill: M2, fontSize: 10 }} />
+                      <YAxis stroke="transparent" tick={{ fill: M2, fontSize: 10 }} width={35} />
+                      <Tooltip content={<ChartTip />} />
+                      <ReferenceLine y={0} stroke={BORDER2} strokeDasharray="4 4" />
+                      <Line type="monotone" dataKey="r" name="R" stroke={GOLD} strokeWidth={2.5} dot={false} fill="url(#goldGrad)" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
               )}
             </div>
 
             <div className="chart-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-              <div style={{ background: CARD, border: "1px solid " + BORDER2, borderRadius: 16, padding: "24px" }}>
+              <div className="card-pad" style={{ background: CARD, border: "1px solid " + BORDER2, borderRadius: 16, padding: "24px" }}>
                 <SH>P&L by Day</SH>
-                <ResponsiveContainer width="100%" height={160}>
-                  <BarChart data={dayData} barCategoryGap="35%">
-                    <XAxis dataKey="key" stroke="transparent" tick={{ fill: M2, fontSize: 12 }} />
-                    <YAxis stroke="transparent" tick={{ fill: M2, fontSize: 11 }} />
-                    <Tooltip content={<ChartTip />} />
-                    <ReferenceLine y={0} stroke={BORDER2} />
-                    <Bar dataKey="r" name="R" radius={[4,4,0,0]}>
-                      {dayData.map((d, i) => <Cell key={i} fill={d.r >= 0 ? GOLD : R} fillOpacity={0.9} />)}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+                <div className="chart-h" style={{ height: 160 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={dayData} barCategoryGap="35%">
+                      <XAxis dataKey="key" stroke="transparent" tick={{ fill: M2, fontSize: 12 }} />
+                      <YAxis stroke="transparent" tick={{ fill: M2, fontSize: 11 }} width={30} />
+                      <Tooltip content={<ChartTip />} />
+                      <ReferenceLine y={0} stroke={BORDER2} />
+                      <Bar dataKey="r" name="R" radius={[4,4,0,0]}>
+                        {dayData.map((d, i) => <Cell key={i} fill={d.r >= 0 ? GOLD : R} fillOpacity={0.9} />)}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
-              <div style={{ background: CARD, border: "1px solid " + BORDER2, borderRadius: 16, padding: "24px" }}>
+              <div className="card-pad" style={{ background: CARD, border: "1px solid " + BORDER2, borderRadius: 16, padding: "24px" }}>
                 <SH>Session Performance</SH>
                 <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 8 }}>
                   {sessionData.map(s => (
-                    <div key={s.key} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <span style={{ width: 120, fontSize: 13, color: TEXT2, fontWeight: 500 }}>{s.key}</span>
+                    <div key={s.key} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span style={{ width: 110, fontSize: 12, color: TEXT2, fontWeight: 500, flexShrink: 0 }}>{s.key}</span>
                       <WBar wr={s.winRate} total={s.total} />
-                      <span style={{ marginLeft: 4, fontSize: 12, color: M2, fontFamily: FONT_MONO, minWidth: 24, textAlign: "right" }}>{s.total}</span>
+                      <span style={{ fontSize: 12, color: M2, fontFamily: FONT_MONO, minWidth: 20, textAlign: "right" }}>{s.total}</span>
                     </div>
                   ))}
                 </div>
@@ -1757,42 +1797,42 @@ function TradingJournal() {
 
             {/* Recent trades table — matching screenshot */}
             <div style={{ background: CARD, border: "1px solid " + BORDER2, borderRadius: 16, overflow: "hidden" }}>
-              <div style={{ padding: "20px 24px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
-                  <div style={{ fontSize: 16, fontWeight: 600, color: TEXT }}>Recent Trades</div>
-                  <div style={{ fontSize: 13, color: M2, marginTop: 2 }}>{stats.total} trades recorded</div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: TEXT }}>Recent Trades</div>
+                  <div style={{ fontSize: 12, color: M2, marginTop: 2 }}>{stats.total} trades recorded</div>
                 </div>
               </div>
-              {trades.length === 0 ? (
-                <div style={{ padding: "48px 0", textAlign: "center", color: M2, fontSize: 14 }}>No trades yet — click <span style={{ color: GOLD, fontWeight: 600 }}>+ Log Trade</span> to start</div>
+              {accountTrades.length === 0 ? (
+                <div style={{ padding: "40px 0", textAlign: "center", color: M2, fontSize: 14 }}>No trades yet — click <span style={{ color: GOLD, fontWeight: 600 }}>+ Log Trade</span> to start</div>
               ) : (
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                  <thead><tr>
-                    {["Date","Symbol","Market","Side","Setup","Entry","RR","P&L","Score"].map(h => <th key={h} style={thS}>{h}</th>)}
-                  </tr></thead>
-                  <tbody>
-                    {[...trades].sort((a, b) => (a.date + (a.time || "")) < (b.date + (b.time || "")) ? 1 : -1).slice(0, 8).map(t => (
-                      <tr key={t.id} onClick={() => setDetail(t)} style={{ cursor: "pointer", transition: "background 0.1s" }}>
-                        <td style={tdS}><span style={{ color: TEXT2, fontSize: 13 }}>{t.date}</span></td>
-                        <td style={tdS}><span style={{ fontWeight: 700, fontSize: 15, fontFamily: FONT_MONO }}>{t.pair}</span></td>
-                        <td style={tdS}><MarketBadge pair={t.pair} /></td>
-                        <td style={tdS}><DirBadge dir={t.direction} /></td>
-                        <td style={{ ...tdS, color: M2, fontSize: 13 }}>{t.setup}</td>
-                        <td style={{ ...tdS, fontFamily: FONT_MONO, fontSize: 13, color: TEXT2 }}>{t.entryPrice || "—"}</td>
-                        <td style={tdS}><Rr v={t.rrActual} /></td>
-                        <td style={tdS}><Pill result={t.result} /></td>
-                        <td style={tdS}>{t.reviewLoading ? <span style={{ color: M2, fontSize: 12 }}>…</span> : t.review ? <span style={{ color: t.review.score >= 7 ? "#4ade80" : t.review.score >= 5 ? GOLD : "#f87171", fontFamily: FONT_MONO, fontWeight: 700 }}>{t.review.score}/10</span> : <span style={{ color: M2 }}>—</span>}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div className="table-wrap" style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
+                    <thead><tr>
+                      {["Date","Symbol","Side","Setup","RR","Result","Score"].map(h => <th key={h} style={thS}>{h}</th>)}
+                    </tr></thead>
+                    <tbody>
+                      {[...accountTrades].sort((a, b) => (a.date + (a.time || "")) < (b.date + (b.time || "")) ? 1 : -1).slice(0, 8).map(t => (
+                        <tr key={t.id} onClick={() => setDetail(t)} style={{ cursor: "pointer", transition: "background 0.1s" }}>
+                          <td style={tdS}><span style={{ color: TEXT2, fontSize: 12, fontFamily: FONT_MONO }}>{t.date}</span></td>
+                          <td style={tdS}><span style={{ fontWeight: 700, fontSize: 14, fontFamily: FONT_MONO }}>{t.pair}</span></td>
+                          <td style={tdS}><DirBadge dir={t.direction} /></td>
+                          <td style={{ ...tdS, color: M2, fontSize: 12, maxWidth: 120 }}><span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.setup}</span></td>
+                          <td style={tdS}><Rr v={t.rrActual} /></td>
+                          <td style={tdS}><Pill result={t.result} /></td>
+                          <td style={tdS}>{t.reviewLoading ? <span style={{ color: M2, fontSize: 12 }}>…</span> : t.review ? <span style={{ color: t.review.score >= 7 ? "#4ade80" : t.review.score >= 5 ? GOLD : "#f87171", fontFamily: FONT_MONO, fontWeight: 700 }}>{t.review.score}/10</span> : <span style={{ color: M2 }}>—</span>}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
           </div>
         )}
         {/* LOG */}
         {tab === "log" && (
-          <CalendarLog trades={trades} onSelectTrade={t => setDetail(t)} onNewTrade={date => { setModal({ ...{ date: "", time: "", pair: "EURUSD", direction: "Long", session: "London", setup: "Fair Value Gap (FVG)", weeklyTemplate: "", entryPrice: "", riskR: 1, rrPlanned: 2, rrActual: "", result: "Win", notes: "", emotion: "", discipline: 0, checklist: {}, mindset: "" }, date }); }} />
+          <CalendarLog trades={accountTrades} onSelectTrade={t => setDetail(t)} onNewTrade={date => { setModal({ ...EMPTY_TRADE, date, account: activeAccount, pair: activeAccount === "Indices" ? "DAX40" : "EURUSD" }); }} />
         )}
 
         {/* PSYCHOLOGY */}
