@@ -66,9 +66,8 @@ const APP_PASSWORD = "Tradingjournal@2026";
 
 // ── DB helpers ────────────────────────────────────────────────────────────────
 function getUserId() {
-  let uid = localStorage.getItem("tradelog_uid");
-  if (!uid) { uid = "user_" + Math.random().toString(36).slice(2, 11); localStorage.setItem("tradelog_uid", uid); }
-  return uid;
+  // Use a fixed ID derived from the password so ALL devices share the same data
+  return "user_" + APP_PASSWORD.split("").reduce((a, c) => ((a << 5) - a + c.charCodeAt(0)) | 0, 0).toString(36).replace("-","n");
 }
 async function dbLoad() {
   const uid = getUserId();
