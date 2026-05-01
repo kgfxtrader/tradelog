@@ -60,6 +60,9 @@ const BC = { Bullish: G, Bearish: R, Neutral: A };
 const SHADOW = "0 1px 3px rgba(0,0,0,0.6)";
 const SUPABASE_URL = "https://yppvcrlwxgxswruaadkf.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlwcHZjcmx3eGd4c3dydWFhZGtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMzY3MjQsImV4cCI6MjA5MjgxMjcyNH0.T4Bx0iqW9Ae_hMFXrScjXtBZS8tczc8-1Lpv-SjaBRI";
+const ANTHROPIC_KEY_STORE = "tradelog_anthropic_key";
+
+function getAnthropicKey() { return localStorage.getItem(ANTHROPIC_KEY_STORE) || ""; }
 
 // ── PASSWORD — change this to whatever you want ───────────────────────────────
 const APP_PASSWORD = "Tradingjournal@2026";
@@ -532,7 +535,7 @@ async function runReview(trade) {
         'Return: {"score":<1-10>,"verdict":"<one line>","execution":"<2 sentences>","timing":"<2 sentences>","templateAlignment":"<2 sentences>","riskMgmt":"<2 sentences>","psychology":"<2 sentences using the reflection answers>","reflection":"<2-3 sentences specifically addressing patterns revealed by the trader\'s self-reflection answers>","strengths":["<s1>","<s2>"],"improvements":["<i1>","<i2>","<i3>"],"keyLesson":"<one takeaway specifically tied to the reflection>"}'
     }]
   };
-  const res = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const res = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "Content-Type": "application/json", "x-api-key": getAnthropicKey(), "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" }, body: JSON.stringify(body) });
   const data = await res.json();
   const text = (data.content && data.content.find(b => b.type === "text") && data.content.find(b => b.type === "text").text) || "{}";
   return JSON.parse(text.replace(/```json|```/g, "").trim());
@@ -554,7 +557,7 @@ async function runCoach(trades) {
         'Return: {"profile":"<archetype>","overallScore":<1-10>,"summary":"<3 sentences>","strengths":[{"title":"","detail":""},{"title":"","detail":""},{"title":"","detail":""}],"weaknesses":[{"title":"","detail":"","severity":"High|Medium|Low"},{"title":"","detail":"","severity":""},{"title":"","detail":"","severity":""}],"emotionalPattern":"","setupPattern":"","templatePattern":"","sessionPattern":"","riskPattern":"","actionPlan":["","","","",""],"focusSetup":"","avoidSetup":"","focusTemplate":"","weeklyGoal":""}'
     }]
   };
-  const res = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const res = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "Content-Type": "application/json", "x-api-key": getAnthropicKey(), "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" }, body: JSON.stringify(body) });
   const data = await res.json();
   const text = (data.content && data.content.find(b => b.type === "text") && data.content.find(b => b.type === "text").text) || "{}";
   return JSON.parse(text.replace(/```json|```/g, "").trim());
@@ -569,7 +572,7 @@ async function runChat(messages, trades) {
     system: "You are an elite ICT forex trading coach. Be direct and reference actual data.\nDATA: " + st.wins + "W/" + st.losses + "L (" + st.winRate.toFixed(0) + "%WR) | AvgRR:" + st.avgR.toFixed(2) + "\nRECENT: " + JSON.stringify(cl.slice(-8).map(t => ({ pair: t.pair, setup: t.setup, template: t.weeklyTemplate || null, result: t.result, rr: t.rrActual, emo: t.emotion }))),
     messages
   };
-  const res = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const res = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "Content-Type": "application/json", "x-api-key": getAnthropicKey(), "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" }, body: JSON.stringify(body) });
   const data = await res.json();
   return (data.content && data.content.find(b => b.type === "text") && data.content.find(b => b.type === "text").text) || "Error.";
 }
@@ -1377,6 +1380,66 @@ function CalendarLog({ trades, onSelectTrade, onNewTrade }) {
   );
 }
 
+// ─── SETTINGS MODAL ──────────────────────────────────────────────────────────
+function SettingsModal({ onClose }) {
+  const [key, setKey] = useState(getAnthropicKey());
+  const [status, setStatus] = useState("");
+
+  const test = async () => {
+    if (!key.trim()) return;
+    setStatus("Testing…");
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-api-key": key.trim(), "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+        body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 10, messages: [{ role: "user", content: "Hi" }] })
+      });
+      const data = await res.json();
+      setStatus(data.content ? "✓ API key valid!" : "✗ Invalid key — " + (data.error?.message || "check key"));
+    } catch (e) {
+      setStatus("✗ Network error");
+    }
+  };
+
+  const save = () => {
+    localStorage.setItem(ANTHROPIC_KEY_STORE, key.trim());
+    onClose();
+  };
+
+  const inp = { background: CARD2, border: "1px solid " + BORDER2, borderRadius: 10, color: TEXT, padding: "12px 14px", width: "100%", fontSize: 14, fontFamily: FONT_MONO, outline: "none", boxSizing: "border-box" };
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", zIndex: 2000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
+      onClick={e => e.target === e.currentTarget && onClose()}>
+      <div style={{ background: CARD, border: "1px solid " + BORDER2, borderRadius: 16, width: "100%", maxWidth: 480, padding: 28, boxShadow: "0 24px 64px rgba(0,0,0,0.6)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: TEXT }}>Settings</div>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: M2, fontSize: 20, cursor: "pointer" }}>×</button>
+        </div>
+
+        {/* Anthropic API Key */}
+        <div style={{ background: CARD2, border: "1px solid " + BORDER2, borderRadius: 12, padding: 20, marginBottom: 20 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: GOLD, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>Anthropic API Key</div>
+          <div style={{ fontSize: 13, color: M2, lineHeight: 1.6, marginBottom: 16 }}>
+            Required for AI Reviews, Coach Analysis and Chat. Get a free key at{" "}
+            <a href="https://console.anthropic.com" target="_blank" rel="noreferrer" style={{ color: GOLD }}>console.anthropic.com</a>
+          </div>
+          <input value={key} onChange={e => setKey(e.target.value)} placeholder="sk-ant-..." style={inp} />
+          <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 12 }}>
+            <button onClick={test} disabled={!key.trim()} style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid " + BORDER2, background: "transparent", color: M2, cursor: "pointer", fontSize: 13 }}>Test Key</button>
+            {status && <span style={{ fontSize: 13, color: status.startsWith("✓") ? "#4ade80" : status === "Testing…" ? GOLD : "#f87171", fontWeight: 600 }}>{status}</span>}
+          </div>
+        </div>
+
+        <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+          <button onClick={onClose} style={{ padding: "10px 18px", borderRadius: 8, border: "1px solid " + BORDER2, background: "transparent", color: M2, cursor: "pointer", fontSize: 14 }}>Cancel</button>
+          <button onClick={save} style={{ padding: "10px 24px", borderRadius: 8, border: "none", background: GOLD, color: "#000", cursor: "pointer", fontSize: 14, fontWeight: 700 }}>Save</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
 export default function App() {
   const [authed, setAuthed] = useState(() => localStorage.getItem("tradelog_auth") === "1");
@@ -1686,6 +1749,7 @@ function TradingJournal() {
             </span>
           )}
           <button onClick={() => setModal("new")} style={{ padding: "8px 16px", borderRadius: 8, border: "none", background: GOLD, color: "#000", cursor: "pointer", fontSize: 13, fontWeight: 700, boxShadow: "0 0 20px " + GOLD + "40", whiteSpace: "nowrap" }}>+ Log</button>
+          <button onClick={() => setShowSettings(true)} style={{ width: 34, height: 34, borderRadius: 8, border: "1px solid " + (getAnthropicKey() ? BORDER2 : "#f87171"), background: "transparent", color: getAnthropicKey() ? M2 : "#f87171", cursor: "pointer", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center" }} title="Settings">⚙</button>
           <button onClick={() => { localStorage.removeItem("tradelog_auth"); window.location.reload(); }} className="hide-mobile" style={{ width: 34, height: 34, borderRadius: 8, border: "1px solid " + BORDER2, background: "transparent", color: M2, cursor: "pointer", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center" }} title="Logout">🔒</button>
         </div>
       </div>
@@ -2140,6 +2204,7 @@ function TradingJournal() {
 
       {modal && <TradeModal trade={modal === "new" ? null : modal} onSave={saveTrade} onDelete={deleteTrade} onClose={() => setModal(null)} />}
       {detail && <TradeDetail trade={detail} onClose={() => setDetail(null)} onEdit={() => { setModal(detail); setDetail(null); }} onUpdateScreenshots={updateScreenshots} />}
+      {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
     </div>
   );
 }
