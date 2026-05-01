@@ -60,9 +60,26 @@ const BC = { Bullish: G, Bearish: R, Neutral: A };
 const SHADOW = "0 1px 3px rgba(0,0,0,0.6)";
 const SUPABASE_URL = "https://yppvcrlwxgxswruaadkf.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlwcHZjcmx3eGd4c3dydWFhZGtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMzY3MjQsImV4cCI6MjA5MjgxMjcyNH0.T4Bx0iqW9Ae_hMFXrScjXtBZS8tczc8-1Lpv-SjaBRI";
-const ANTHROPIC_KEY_STORE = "tradelog_anthropic_key";
+const GEMINI_KEY_STORE = "tradelog_gemini_key";
+const GEMINI_MODEL = "gemini-2.0-flash";
 
-function getAnthropicKey() { return localStorage.getItem(ANTHROPIC_KEY_STORE) || ""; }
+function getGeminiKey() { return localStorage.getItem(GEMINI_KEY_STORE) || ""; }
+
+async function callGemini(prompt, systemPrompt) {
+  const key = getGeminiKey();
+  if (!key) throw new Error("No Gemini API key set. Click ⚙ Settings to add your free key.");
+  const messages = [];
+  if (systemPrompt) messages.push({ role: "user", parts: [{ text: systemPrompt }] }, { role: "model", parts: [{ text: "Understood." }] });
+  messages.push({ role: "user", parts: [{ text: prompt }] });
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ contents: messages, generationConfig: { temperature: 0.7, maxOutputTokens: 1500 } })
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message || "Gemini API error");
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+}
 
 // ── PASSWORD — change this to whatever you want ───────────────────────────────
 const APP_PASSWORD = "Tradingjournal@2026";
@@ -519,26 +536,23 @@ async function runReview(trade) {
     if (ans === undefined || ans === "") return null;
     return "  • " + q.q + " → " + (q.type === "yn" ? (ans === true ? "YES" : "NO") : ans);
   }).filter(Boolean).join("\n");
-  const body = {
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 1200,
-    messages: [{
-      role: "user",
-      content: "You are an elite ICT trading coach. Review this trade and return ONLY valid JSON (no markdown).\n" +
-        "Trade: " + trade.pair + " " + trade.direction + " | " + trade.date + " " + (trade.time || "") + " UTC\n" +
-        "Session: " + trade.session + " | Setup: " + trade.setup + "\n" +
-        "Template: " + (tpl ? tpl.name + " (" + tpl.bias + ")" : "none") + "\n" +
-        "Entry: " + (trade.entryPrice || "—") + " | RR: " + trade.rrPlanned + "R planned / " + trade.rrActual + "R actual\n" +
-        "Result: " + trade.result + " | Emotion: " + (trade.emotion || "—") + " | Discipline: " + (trade.discipline || "—") + "/5\n" +
-        "Notes: " + (trade.notes || "—") + "\n" +
-        (refLines ? "Post-trade reflection:\n" + refLines + "\n" : "") +
-        'Return: {"score":<1-10>,"verdict":"<one line>","execution":"<2 sentences>","timing":"<2 sentences>","templateAlignment":"<2 sentences>","riskMgmt":"<2 sentences>","psychology":"<2 sentences using the reflection answers>","reflection":"<2-3 sentences specifically addressing patterns revealed by the trader\'s self-reflection answers>","strengths":["<s1>","<s2>"],"improvements":["<i1>","<i2>","<i3>"],"keyLesson":"<one takeaway specifically tied to the reflection>"}'
-    }]
-  };
-  const res = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "Content-Type": "application/json", "x-api-key": getAnthropicKey(), "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" }, body: JSON.stringify(body) });
-  const data = await res.json();
-  const text = (data.content && data.content.find(b => b.type === "text") && data.content.find(b => b.type === "text").text) || "{}";
-  return JSON.parse(text.replace(/```json|```/g, "").trim());
+
+  const prompt = `You are an elite ICT trading coach. Review this trade and return ONLY valid JSON (no markdown, no backticks).
+
+Trade: ${trade.pair} ${trade.direction} | ${trade.date} ${trade.time || ""} UTC
+Session: ${trade.session} | Setup: ${trade.setup}
+Template: ${tpl ? tpl.name + " (" + tpl.bias + ")" : "none"}
+Entry: ${trade.entryPrice || "—"} | RR: ${trade.rrPlanned}R planned / ${trade.rrActual}R actual
+Result: ${trade.result} | Emotion: ${trade.emotion || "—"} | Discipline: ${trade.discipline || "—"}/5
+Notes: ${trade.notes || "—"}
+${refLines ? "Post-trade reflection:\n" + refLines : ""}
+
+Return this exact JSON structure:
+{"score":<1-10>,"verdict":"<one line>","execution":"<2 sentences>","timing":"<2 sentences>","templateAlignment":"<2 sentences>","riskMgmt":"<2 sentences>","psychology":"<2 sentences>","reflection":"<2-3 sentences on self-reflection patterns>","strengths":["<s1>","<s2>"],"improvements":["<i1>","<i2>","<i3>"],"keyLesson":"<one takeaway>"}`;
+
+  const text = await callGemini(prompt);
+  const clean = text.replace(/```json|```/g, "").trim();
+  return JSON.parse(clean);
 }
 
 async function runCoach(trades) {
@@ -546,35 +560,32 @@ async function runCoach(trades) {
   if (cl.length < 3) return null;
   const st = calcStats(trades);
   const summary = cl.map(t => ({ pair: t.pair, dir: t.direction, setup: t.setup, session: t.session, template: t.weeklyTemplate || null, rr: t.rrActual, result: t.result, emo: t.emotion || null, disc: t.discipline || null }));
-  const body = {
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 1500,
-    messages: [{
-      role: "user",
-      content: "Elite ICT trading coach analysis. Return ONLY valid JSON (no markdown).\n" +
-        "Stats: " + st.wins + "W/" + st.losses + "L (" + st.winRate.toFixed(0) + "% WR), AvgRR:" + st.avgR.toFixed(2) + ", PF:" + (isFinite(st.profitFactor) ? st.profitFactor.toFixed(2) : "∞") + "\n" +
-        "Trades(" + cl.length + "): " + JSON.stringify(summary) + "\n" +
-        'Return: {"profile":"<archetype>","overallScore":<1-10>,"summary":"<3 sentences>","strengths":[{"title":"","detail":""},{"title":"","detail":""},{"title":"","detail":""}],"weaknesses":[{"title":"","detail":"","severity":"High|Medium|Low"},{"title":"","detail":"","severity":""},{"title":"","detail":"","severity":""}],"emotionalPattern":"","setupPattern":"","templatePattern":"","sessionPattern":"","riskPattern":"","actionPlan":["","","","",""],"focusSetup":"","avoidSetup":"","focusTemplate":"","weeklyGoal":""}'
-    }]
-  };
-  const res = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "Content-Type": "application/json", "x-api-key": getAnthropicKey(), "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" }, body: JSON.stringify(body) });
-  const data = await res.json();
-  const text = (data.content && data.content.find(b => b.type === "text") && data.content.find(b => b.type === "text").text) || "{}";
-  return JSON.parse(text.replace(/```json|```/g, "").trim());
+
+  const prompt = `You are an elite ICT trading coach doing a deep pattern analysis. Return ONLY valid JSON (no markdown, no backticks).
+
+Stats: ${st.wins}W/${st.losses}L (${st.winRate.toFixed(0)}% WR), AvgRR:${st.avgR.toFixed(2)}, PF:${isFinite(st.profitFactor) ? st.profitFactor.toFixed(2) : "∞"}
+Trades(${cl.length}): ${JSON.stringify(summary)}
+
+Return this exact JSON structure:
+{"profile":"<archetype>","overallScore":<1-10>,"summary":"<3 sentences>","strengths":[{"title":"","detail":""},{"title":"","detail":""},{"title":"","detail":""}],"weaknesses":[{"title":"","detail":"","severity":"High|Medium|Low"},{"title":"","detail":"","severity":""},{"title":"","detail":"","severity":""}],"emotionalPattern":"","setupPattern":"","templatePattern":"","sessionPattern":"","riskPattern":"","actionPlan":["","","","",""],"focusSetup":"","avoidSetup":"","focusTemplate":"","weeklyGoal":""}`;
+
+  const text = await callGemini(prompt);
+  const clean = text.replace(/```json|```/g, "").trim();
+  return JSON.parse(clean);
 }
 
 async function runChat(messages, trades) {
   const st = calcStats(trades);
   const cl = trades.filter(t => t.result !== "Open");
-  const body = {
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 600,
-    system: "You are an elite ICT forex trading coach. Be direct and reference actual data.\nDATA: " + st.wins + "W/" + st.losses + "L (" + st.winRate.toFixed(0) + "%WR) | AvgRR:" + st.avgR.toFixed(2) + "\nRECENT: " + JSON.stringify(cl.slice(-8).map(t => ({ pair: t.pair, setup: t.setup, template: t.weeklyTemplate || null, result: t.result, rr: t.rrActual, emo: t.emotion }))),
-    messages
-  };
-  const res = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "Content-Type": "application/json", "x-api-key": getAnthropicKey(), "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" }, body: JSON.stringify(body) });
-  const data = await res.json();
-  return (data.content && data.content.find(b => b.type === "text") && data.content.find(b => b.type === "text").text) || "Error.";
+  const systemPrompt = `You are an elite ICT forex trading coach. Be direct, specific, and reference the trader's actual data.
+DATA: ${st.wins}W/${st.losses}L (${st.winRate.toFixed(0)}%WR) | AvgRR:${st.avgR.toFixed(2)} | PF:${isFinite(st.profitFactor) ? st.profitFactor.toFixed(2) : "∞"}
+RECENT TRADES: ${JSON.stringify(cl.slice(-8).map(t => ({ pair: t.pair, setup: t.setup, template: t.weeklyTemplate || null, result: t.result, rr: t.rrActual, emo: t.emotion })))}`;
+
+  const lastMessage = messages[messages.length - 1]?.content || "";
+  const history = messages.slice(0, -1).map(m => m.content).join("\n");
+  const fullPrompt = history ? `Previous conversation:\n${history}\n\nTrader: ${lastMessage}` : lastMessage;
+
+  return await callGemini(fullPrompt, systemPrompt);
 }
 
 // ─── REVIEW PANEL ────────────────────────────────────────────────────────────
@@ -1382,27 +1393,28 @@ function CalendarLog({ trades, onSelectTrade, onNewTrade }) {
 
 // ─── SETTINGS MODAL ──────────────────────────────────────────────────────────
 function SettingsModal({ onClose }) {
-  const [key, setKey] = useState(getAnthropicKey());
+  const [key, setKey] = useState(getGeminiKey());
   const [status, setStatus] = useState("");
 
   const test = async () => {
     if (!key.trim()) return;
     setStatus("Testing…");
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key.trim()}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-api-key": key.trim(), "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
-        body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 10, messages: [{ role: "user", content: "Hi" }] })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: "Say OK" }] }] })
       });
       const data = await res.json();
-      setStatus(data.content ? "✓ API key valid!" : "✗ Invalid key — " + (data.error?.message || "check key"));
+      if (data.error) setStatus("✗ " + data.error.message);
+      else setStatus("✓ API key valid!");
     } catch (e) {
       setStatus("✗ Network error");
     }
   };
 
   const save = () => {
-    localStorage.setItem(ANTHROPIC_KEY_STORE, key.trim());
+    localStorage.setItem(GEMINI_KEY_STORE, key.trim());
     onClose();
   };
 
@@ -1416,21 +1428,19 @@ function SettingsModal({ onClose }) {
           <div style={{ fontSize: 18, fontWeight: 700, color: TEXT }}>Settings</div>
           <button onClick={onClose} style={{ background: "none", border: "none", color: M2, fontSize: 20, cursor: "pointer" }}>×</button>
         </div>
-
-        {/* Anthropic API Key */}
         <div style={{ background: CARD2, border: "1px solid " + BORDER2, borderRadius: 12, padding: 20, marginBottom: 20 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: GOLD, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>Anthropic API Key</div>
-          <div style={{ fontSize: 13, color: M2, lineHeight: 1.6, marginBottom: 16 }}>
-            Required for AI Reviews, Coach Analysis and Chat. Get a free key at{" "}
-            <a href="https://console.anthropic.com" target="_blank" rel="noreferrer" style={{ color: GOLD }}>console.anthropic.com</a>
+          <div style={{ fontSize: 13, fontWeight: 700, color: GOLD, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>Google Gemini API Key — Free</div>
+          <div style={{ fontSize: 13, color: M2, lineHeight: 1.7, marginBottom: 16 }}>
+            Powers all AI features — reviews, coach, chat. Get your <strong style={{ color: TEXT }}>free</strong> key (no credit card) at{" "}
+            <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer" style={{ color: GOLD }}>aistudio.google.com/apikey</a>
+            <br />1,500 free requests/day — more than enough.
           </div>
-          <input value={key} onChange={e => setKey(e.target.value)} placeholder="sk-ant-..." style={inp} />
+          <input value={key} onChange={e => setKey(e.target.value)} placeholder="AIza..." style={inp} />
           <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 12 }}>
             <button onClick={test} disabled={!key.trim()} style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid " + BORDER2, background: "transparent", color: M2, cursor: "pointer", fontSize: 13 }}>Test Key</button>
             {status && <span style={{ fontSize: 13, color: status.startsWith("✓") ? "#4ade80" : status === "Testing…" ? GOLD : "#f87171", fontWeight: 600 }}>{status}</span>}
           </div>
         </div>
-
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onClose} style={{ padding: "10px 18px", borderRadius: 8, border: "1px solid " + BORDER2, background: "transparent", color: M2, cursor: "pointer", fontSize: 14 }}>Cancel</button>
           <button onClick={save} style={{ padding: "10px 24px", borderRadius: 8, border: "none", background: GOLD, color: "#000", cursor: "pointer", fontSize: 14, fontWeight: 700 }}>Save</button>
@@ -1523,7 +1533,7 @@ function TradingJournal() {
 
   const doCoach = async () => {
     setCoachLoading(true);
-    try { setCoachReport(await runCoach(trades)); } catch (e) {}
+    try { setCoachReport(await runCoach(accountTrades)); } catch (e) { alert(e.message || "AI error. Check your Gemini API key in ⚙ Settings."); }
     setCoachLoading(false);
   };
 
@@ -1536,7 +1546,7 @@ function TradingJournal() {
       const reply = await runChat(hist, trades);
       setChatHistory(h => [...h, { role: "assistant", content: reply }]);
     } catch (e) {
-      setChatHistory(h => [...h, { role: "assistant", content: "Error. Try again." }]);
+      setChatHistory(h => [...h, { role: "assistant", content: "⚠ " + (e.message || "AI error. Check your Gemini API key in ⚙ Settings.") }]);
     }
     setChatLoading(false);
   };
@@ -1749,7 +1759,7 @@ function TradingJournal() {
             </span>
           )}
           <button onClick={() => setModal("new")} style={{ padding: "8px 16px", borderRadius: 8, border: "none", background: GOLD, color: "#000", cursor: "pointer", fontSize: 13, fontWeight: 700, boxShadow: "0 0 20px " + GOLD + "40", whiteSpace: "nowrap" }}>+ Log</button>
-          <button onClick={() => setShowSettings(true)} style={{ width: 34, height: 34, borderRadius: 8, border: "1px solid " + (getAnthropicKey() ? BORDER2 : "#f87171"), background: "transparent", color: getAnthropicKey() ? M2 : "#f87171", cursor: "pointer", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center" }} title="Settings">⚙</button>
+          <button onClick={() => setShowSettings(true)} style={{ width: 34, height: 34, borderRadius: 8, border: "1px solid " + (getGeminiKey() ? BORDER2 : "#f87171"), background: "transparent", color: getGeminiKey() ? M2 : "#f87171", cursor: "pointer", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center" }} title="Settings">⚙</button>
           <button onClick={() => { localStorage.removeItem("tradelog_auth"); window.location.reload(); }} className="hide-mobile" style={{ width: 34, height: 34, borderRadius: 8, border: "1px solid " + BORDER2, background: "transparent", color: M2, cursor: "pointer", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center" }} title="Logout">🔒</button>
         </div>
       </div>
