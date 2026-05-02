@@ -60,25 +60,25 @@ const BC = { Bullish: G, Bearish: R, Neutral: A };
 const SHADOW = "0 1px 3px rgba(0,0,0,0.6)";
 const SUPABASE_URL = "https://yppvcrlwxgxswruaadkf.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlwcHZjcmx3eGd4c3dydWFhZGtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMzY3MjQsImV4cCI6MjA5MjgxMjcyNH0.T4Bx0iqW9Ae_hMFXrScjXtBZS8tczc8-1Lpv-SjaBRI";
-const GEMINI_KEY_STORE = "tradelog_gemini_key";
-const GEMINI_MODEL = "gemini-2.0-flash-lite";
+const GEMINI_KEY_STORE = "tradelog_openai_key";
+const OPENAI_MODEL = "gpt-4o-mini"; // cheapest, very capable
 
 function getGeminiKey() { return localStorage.getItem(GEMINI_KEY_STORE) || ""; }
 
 async function callGemini(prompt, systemPrompt) {
   const key = getGeminiKey();
-  if (!key) throw new Error("No Gemini API key set. Click ⚙ Settings to add your free key.");
+  if (!key) throw new Error("No API key set. Click ⚙ Settings to add your free OpenAI key.");
   const messages = [];
-  if (systemPrompt) messages.push({ role: "user", parts: [{ text: systemPrompt }] }, { role: "model", parts: [{ text: "Understood." }] });
-  messages.push({ role: "user", parts: [{ text: prompt }] });
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, {
+  if (systemPrompt) messages.push({ role: "system", content: systemPrompt });
+  messages.push({ role: "user", content: prompt });
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contents: messages, generationConfig: { temperature: 0.7, maxOutputTokens: 1500 } })
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + key },
+    body: JSON.stringify({ model: OPENAI_MODEL, messages, max_tokens: 1500, temperature: 0.7 })
   });
   const data = await res.json();
-  if (data.error) throw new Error(data.error.message || "Gemini API error");
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  if (data.error) throw new Error(data.error.message || "OpenAI API error");
+  return data.choices?.[0]?.message?.content || "";
 }
 
 // ── PASSWORD — change this to whatever you want ───────────────────────────────
@@ -1400,10 +1400,10 @@ function SettingsModal({ onClose }) {
     if (!key.trim()) return;
     setStatus("Testing…");
     try {
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key.trim()}`, {
+      const res = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: "Say OK" }] }] })
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + key.trim() },
+        body: JSON.stringify({ model: OPENAI_MODEL, messages: [{ role: "user", content: "Hi" }], max_tokens: 5 })
       });
       const data = await res.json();
       if (data.error) setStatus("✗ " + data.error.message);
@@ -1429,13 +1429,13 @@ function SettingsModal({ onClose }) {
           <button onClick={onClose} style={{ background: "none", border: "none", color: M2, fontSize: 20, cursor: "pointer" }}>×</button>
         </div>
         <div style={{ background: CARD2, border: "1px solid " + BORDER2, borderRadius: 12, padding: 20, marginBottom: 20 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: GOLD, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>Google Gemini API Key — Free</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: GOLD, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>OpenAI API Key — $5 Free Credit</div>
           <div style={{ fontSize: 13, color: M2, lineHeight: 1.7, marginBottom: 16 }}>
-            Powers all AI features — reviews, coach, chat. Get your <strong style={{ color: TEXT }}>free</strong> key (no credit card) at{" "}
-            <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer" style={{ color: GOLD }}>aistudio.google.com/apikey</a>
-            <br />1,500 free requests/day — more than enough.
+            Powers all AI features — reviews, coach, chat. Sign up at{" "}
+            <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer" style={{ color: GOLD }}>platform.openai.com</a>
+            {" "}→ get <strong style={{ color: TEXT }}>$5 free credit</strong> — enough for thousands of trade reviews.
           </div>
-          <input value={key} onChange={e => setKey(e.target.value)} placeholder="AIza..." style={inp} />
+          <input value={key} onChange={e => setKey(e.target.value)} placeholder="sk-..." style={inp} />
           <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 12 }}>
             <button onClick={test} disabled={!key.trim()} style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid " + BORDER2, background: "transparent", color: M2, cursor: "pointer", fontSize: 13 }}>Test Key</button>
             {status && <span style={{ fontSize: 13, color: status.startsWith("✓") ? "#4ade80" : status === "Testing…" ? GOLD : "#f87171", fontWeight: 600 }}>{status}</span>}
@@ -1533,7 +1533,7 @@ function TradingJournal() {
 
   const doCoach = async () => {
     setCoachLoading(true);
-    try { setCoachReport(await runCoach(accountTrades)); } catch (e) { alert(e.message || "AI error. Check your Gemini API key in ⚙ Settings."); }
+    try { setCoachReport(await runCoach(accountTrades)); } catch (e) { alert(e.message || "AI error. Check your OpenAI API key in ⚙ Settings."); }
     setCoachLoading(false);
   };
 
@@ -1546,7 +1546,7 @@ function TradingJournal() {
       const reply = await runChat(hist, trades);
       setChatHistory(h => [...h, { role: "assistant", content: reply }]);
     } catch (e) {
-      setChatHistory(h => [...h, { role: "assistant", content: "⚠ " + (e.message || "AI error. Check your Gemini API key in ⚙ Settings.") }]);
+      setChatHistory(h => [...h, { role: "assistant", content: "⚠ " + (e.message || "AI error. Check your OpenAI API key in ⚙ Settings.") }]);
     }
     setChatLoading(false);
   };
