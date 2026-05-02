@@ -61,7 +61,7 @@ const SHADOW = "0 1px 3px rgba(0,0,0,0.6)";
 const SUPABASE_URL = "https://yppvcrlwxgxswruaadkf.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlwcHZjcmx3eGd4c3dydWFhZGtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMzY3MjQsImV4cCI6MjA5MjgxMjcyNH0.T4Bx0iqW9Ae_hMFXrScjXtBZS8tczc8-1Lpv-SjaBRI";
 const GEMINI_KEY_STORE = "tradelog_gemini_key";
-const GEMINI_MODEL = "gemini-1.5-flash";
+const GEMINI_MODEL = "gemini-1.5-flash-latest";
 
 function getGeminiKey() { return localStorage.getItem(GEMINI_KEY_STORE) || ""; }
 
