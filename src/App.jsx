@@ -60,24 +60,24 @@ const BC = { Bullish: G, Bearish: R, Neutral: A };
 const SHADOW = "0 1px 3px rgba(0,0,0,0.6)";
 const SUPABASE_URL = "https://yppvcrlwxgxswruaadkf.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlwcHZjcmx3eGd4c3dydWFhZGtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMzY3MjQsImV4cCI6MjA5MjgxMjcyNH0.T4Bx0iqW9Ae_hMFXrScjXtBZS8tczc8-1Lpv-SjaBRI";
-const GEMINI_KEY_STORE = "tradelog_openai_key";
-const OPENAI_MODEL = "gpt-4o-mini"; // cheapest, very capable
+const GEMINI_KEY_STORE = "tradelog_groq_key";
+const GROQ_MODEL = "llama-3.3-70b-versatile";
 
 function getGeminiKey() { return localStorage.getItem(GEMINI_KEY_STORE) || ""; }
 
 async function callGemini(prompt, systemPrompt) {
   const key = getGeminiKey();
-  if (!key) throw new Error("No API key set. Click ⚙ Settings to add your free OpenAI key.");
+  if (!key) throw new Error("No API key set. Click ⚙ Settings to add your free Groq key.");
   const messages = [];
   if (systemPrompt) messages.push({ role: "system", content: systemPrompt });
   messages.push({ role: "user", content: prompt });
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", "Authorization": "Bearer " + key },
-    body: JSON.stringify({ model: OPENAI_MODEL, messages, max_tokens: 1500, temperature: 0.7 })
+    body: JSON.stringify({ model: GROQ_MODEL, messages, max_tokens: 1500, temperature: 0.7 })
   });
   const data = await res.json();
-  if (data.error) throw new Error(data.error.message || "OpenAI API error");
+  if (data.error) throw new Error(data.error.message || "Groq API error");
   return data.choices?.[0]?.message?.content || "";
 }
 
@@ -1400,14 +1400,14 @@ function SettingsModal({ onClose }) {
     if (!key.trim()) return;
     setStatus("Testing…");
     try {
-      const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": "Bearer " + key.trim() },
-        body: JSON.stringify({ model: OPENAI_MODEL, messages: [{ role: "user", content: "Hi" }], max_tokens: 5 })
+        body: JSON.stringify({ model: GROQ_MODEL, messages: [{ role: "user", content: "Hi" }], max_tokens: 5 })
       });
       const data = await res.json();
       if (data.error) setStatus("✗ " + data.error.message);
-      else setStatus("✓ API key valid!");
+      else setStatus("✓ Key valid!");
     } catch (e) {
       setStatus("✗ Network error");
     }
@@ -1429,13 +1429,13 @@ function SettingsModal({ onClose }) {
           <button onClick={onClose} style={{ background: "none", border: "none", color: M2, fontSize: 20, cursor: "pointer" }}>×</button>
         </div>
         <div style={{ background: CARD2, border: "1px solid " + BORDER2, borderRadius: 12, padding: 20, marginBottom: 20 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: GOLD, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>OpenAI API Key — $5 Free Credit</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: GOLD, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>Groq API Key — 100% Free</div>
           <div style={{ fontSize: 13, color: M2, lineHeight: 1.7, marginBottom: 16 }}>
-            Powers all AI features — reviews, coach, chat. Sign up at{" "}
-            <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer" style={{ color: GOLD }}>platform.openai.com</a>
-            {" "}→ get <strong style={{ color: TEXT }}>$5 free credit</strong> — enough for thousands of trade reviews.
+            Powers all AI features. Completely free — no credit card ever. Sign up at{" "}
+            <a href="https://console.groq.com/keys" target="_blank" rel="noreferrer" style={{ color: GOLD }}>console.groq.com/keys</a>
+            {" "}→ Create API Key → Copy it. <strong style={{ color: TEXT }}>14,400 free requests/day.</strong>
           </div>
-          <input value={key} onChange={e => setKey(e.target.value)} placeholder="sk-..." style={inp} />
+          <input value={key} onChange={e => setKey(e.target.value)} placeholder="gsk_..." style={inp} />
           <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 12 }}>
             <button onClick={test} disabled={!key.trim()} style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid " + BORDER2, background: "transparent", color: M2, cursor: "pointer", fontSize: 13 }}>Test Key</button>
             {status && <span style={{ fontSize: 13, color: status.startsWith("✓") ? "#4ade80" : status === "Testing…" ? GOLD : "#f87171", fontWeight: 600 }}>{status}</span>}
@@ -1533,7 +1533,7 @@ function TradingJournal() {
 
   const doCoach = async () => {
     setCoachLoading(true);
-    try { setCoachReport(await runCoach(accountTrades)); } catch (e) { alert(e.message || "AI error. Check your OpenAI API key in ⚙ Settings."); }
+    try { setCoachReport(await runCoach(accountTrades)); } catch (e) { alert(e.message || "AI error. Check your Groq API key in ⚙ Settings."); }
     setCoachLoading(false);
   };
 
@@ -1546,7 +1546,7 @@ function TradingJournal() {
       const reply = await runChat(hist, trades);
       setChatHistory(h => [...h, { role: "assistant", content: reply }]);
     } catch (e) {
-      setChatHistory(h => [...h, { role: "assistant", content: "⚠ " + (e.message || "AI error. Check your OpenAI API key in ⚙ Settings.") }]);
+      setChatHistory(h => [...h, { role: "assistant", content: "⚠ " + (e.message || "AI error. Check your Groq API key in ⚙ Settings.") }]);
     }
     setChatLoading(false);
   };
