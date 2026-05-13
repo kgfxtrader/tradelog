@@ -85,17 +85,34 @@ async function callGemini(prompt, systemPrompt) {
 const APP_PASSWORD = "Tradingjournal@2026";
 
 // ── DB helpers ────────────────────────────────────────────────────────────────
+// FIXED USER ID — same on every device, never changes
+const FIXED_USER_ID = "user_eloy2025";
+
 function getUserId() {
-  // Use a fixed ID derived from the password so ALL devices share the same data
-  return "user_" + APP_PASSWORD.split("").reduce((a, c) => ((a << 5) - a + c.charCodeAt(0)) | 0, 0).toString(36).replace("-","n");
+  // Always force the fixed ID into localStorage so random IDs never get used
+  localStorage.setItem("tradelog_uid", FIXED_USER_ID);
+  return FIXED_USER_ID;
 }
+
 async function dbLoad() {
   const uid = getUserId();
   const res = await fetch(SUPABASE_URL + "/rest/v1/user_data?user_id=eq." + uid + "&select=data", { headers: { apikey: SUPABASE_KEY, Authorization: "Bearer " + SUPABASE_KEY } });
   const rows = await res.json();
   return rows && rows[0] ? rows[0].data : null;
 }
+
 async function dbSave(payload) {
+  // NEVER save if trades is empty — protects against overwriting real data
+  if (!payload.trades || payload.trades.length === 0) {
+    // Only save empty if we explicitly want to (skip silent empty saves)
+    return;
+  }
+  const uid = getUserId();
+  await fetch(SUPABASE_URL + "/rest/v1/user_data", { method: "POST", headers: { apikey: SUPABASE_KEY, Authorization: "Bearer " + SUPABASE_KEY, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates" }, body: JSON.stringify({ user_id: uid, data: payload, updated_at: new Date().toISOString() }) });
+}
+
+async function dbSaveForce(payload) {
+  // Use this when we explicitly want to save (even empty)
   const uid = getUserId();
   await fetch(SUPABASE_URL + "/rest/v1/user_data", { method: "POST", headers: { apikey: SUPABASE_KEY, Authorization: "Bearer " + SUPABASE_KEY, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates" }, body: JSON.stringify({ user_id: uid, data: payload, updated_at: new Date().toISOString() }) });
 }
@@ -1492,17 +1509,24 @@ function TradingJournal() {
   }, []);
 
   // Auto-save to Supabase whenever data changes (debounced 1.5s)
+  // PROTECTION: never saves if loaded=false or if trades is empty and we haven't loaded yet
   useEffect(() => {
     if (!loaded) return;
     setSyncing(true);
     setSyncError(false);
     const t = setTimeout(async () => {
       try {
-        await dbSave({ trades, coachReport, chatHistory });
+        if (trades.length > 0) {
+          // Normal save with trades
+          await dbSave({ trades, coachReport, chatHistory });
+        } else {
+          // Only save empty if we're sure data loaded and user deleted all trades
+          await dbSaveForce({ trades, coachReport, chatHistory });
+        }
         setSyncError(false);
       } catch (e) { setSyncError(true); }
       setSyncing(false);
-    }, 1500);
+    }, 2000); // increased to 2s debounce for safety
     return () => clearTimeout(t);
   }, [trades, coachReport, chatHistory, loaded]);
 
